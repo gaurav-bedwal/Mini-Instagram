@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title><%= type === 'followers' ? 'Followers' : 'Following' %> - @<%= profileUser.username %></title>
+  <%- include('partials/common-styles') %>
+  <style>
+    .followers-container {
+      max-width: 400px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .followers-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .back-btn {
+      color: var(--color-text-primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .followers-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .followers-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .follower-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .follower-item img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .follower-info {
+      flex: 1;
+    }
+
+    .follower-username {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--color-text-primary);
+      text-decoration: none;
+      display: block;
+    }
+
+    .follower-username:hover {
+      text-decoration: underline;
+    }
+
+    .follower-name {
+      color: var(--color-text-secondary);
+      font-size: 14px;
+    }
+
+    .follow-btn {
+      padding: 7px 16px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: none;
+    }
+
+    .follow-btn.primary {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .follow-btn.primary:hover {
+      background: var(--color-primary-hover);
+    }
+
+    .follow-btn.secondary {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-primary);
+    }
+
+    .no-followers {
+      text-align: center;
+      padding: 40px;
+      color: var(--color-text-secondary);
+    }
+
+    body.dark-mode .follower-username {
+      color: #f0f0f0;
+    }
+
+    body.dark-mode .follow-btn.secondary {
+      background: #262626;
+      border-color: #404040;
+      color: #f0f0f0;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('partials/sidebar') %>
+  <%- include('partials/modal') %>
+  <%- include('partials/mobile-nav') %>
+
+  <div class="main-content">
+    <%- include('partials/top-nav') %>
+
+    <div class="followers-container">
+      <div class="followers-header">
+        <a href="/user/<%= profileUser._id %>" class="back-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </a>
+        <h2><%= type === 'followers' ? 'Followers' : 'Following' %></h2>
+      </div>
+
+      <% if (followers && followers.length > 0) { %>
+        <div class="followers-list">
+          <% followers.forEach(f => { %>
+            <div class="follower-item">
+              <% if (f.avatar) { %>
+                <img src="<%= f.avatar %>" alt="<%= f.username %>">
+              <% } else { %>
+                <div style="width: 44px; height: 44px; background: #efefef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #8e8e8e;">
+                  <%= f.username.charAt(0).toUpperCase() %>
+                </div>
+              <% } %>
+              <div class="follower-info">
+                <a href="/user/<%= f._id %>" class="follower-username"><%= f.username %></a>
+                <% if (f.name) { %>
+                  <div class="follower-name"><%= f.name %></div>
+                <% } %>
+              </div>
+              <% if (f._id.toString() !== user._id.toString()) { %>
+                <button class="follow-btn <%= user.following && user.following.includes(f._id.toString()) ? 'secondary' : 'primary' %>"
+                        onclick="toggleFollow('<%= f._id %>', this)">
+                  <%= user.following && user.following.includes(f._id.toString()) ? 'Following' : 'Follow' %>
+                </button>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="no-followers">
+          <p><%= type === 'followers' ? 'No followers yet' : 'Not following anyone yet' %></p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('partials/scripts') %>
+
+  <script>
+    async function toggleFollow(userId, btn) {
+      try {
+        const response = await fetch(`/user/${userId}/follow`, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          if (data.isFollowing) {
+            btn.textContent = 'Following';
+            btn.classList.remove('primary');
+            btn.classList.add('secondary');
+          } else {
+            btn.textContent = 'Follow';
+            btn.classList.remove('secondary');
+            btn.classList.add('primary');
+          }
+        }
+      } catch (err) {
+        console.error('Follow error:', err);
+      }
+    }
+  </script>
+</body>
+
+</html>

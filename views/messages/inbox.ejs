@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Messages - Blogs</title>
+  <%- include('../partials/common-styles') %>
+  <style>
+    .messages-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+    }
+    .messages-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color, #dbdbdb);
+      margin-bottom: 16px;
+    }
+    .messages-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .new-message-btn {
+      padding: 8px 16px;
+      background: #0095f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .conversations-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .conversation-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.2s;
+    }
+    .conversation-item:hover {
+      background: var(--hover-color, #fafafa);
+    }
+    .conversation-item.unread {
+      background: var(--highlight-bg, #f0f8ff);
+    }
+    .conversation-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 12px;
+    }
+    .avatar-placeholder {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #efefef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #8e8e8e;
+      margin-right: 12px;
+    }
+    .conversation-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .conversation-username {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .conversation-preview {
+      color: #8e8e8e;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .conversation-time {
+      font-size: 12px;
+      color: #8e8e8e;
+    }
+    .online-indicator {
+      width: 12px;
+      height: 12px;
+      background: #44b700;
+      border-radius: 50%;
+      border: 2px solid white;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+    .avatar-wrapper {
+      position: relative;
+      margin-right: 12px;
+    }
+    .empty-inbox {
+      text-align: center;
+      padding: 60px 20px;
+      color: #8e8e8e;
+    }
+    .empty-inbox svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    .search-users-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .search-users-modal.active {
+      display: flex;
+    }
+    .search-modal-content {
+      background: var(--bg-color, white);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 70vh;
+      overflow: hidden;
+    }
+    .search-modal-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color, #dbdbdb);
+    }
+    .search-modal-header input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color, #dbdbdb);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .search-results {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+    .search-result-item:hover {
+      background: var(--hover-color, #fafafa);
+    }
+    .search-result-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 12px;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar') %>
+  <%- include('../partials/mobile-nav') %>
+
+  <div class="main-content">
+    <%- include('../partials/top-nav') %>
+    
+    <div class="messages-container">
+      <div class="messages-header">
+        <h2>Messages</h2>
+        <button class="new-message-btn" onclick="openSearchModal()">New Message</button>
+      </div>
+
+      <div class="conversations-list">
+        <% if (conversations.length === 0) { %>
+          <div class="empty-inbox">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M22 3H2l10 9.5L22 3z"></path>
+              <path d="M2 3v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V3"></path>
+            </svg>
+            <h3>No messages yet</h3>
+            <p>Start a conversation with someone!</p>
+          </div>
+        <% } else { %>
+          <% conversations.forEach(conv => { %>
+            <% 
+              const otherParticipant = conv.participants.find(p => p._id.toString() !== user._id.toString());
+              const hasUnread = conv.messages.some(m => !m.readBy.includes(user._id) && m.sender.toString() !== user._id.toString());
+            %>
+            <a href="/messages/conversation/<%= otherParticipant._id %>" class="conversation-item <%= hasUnread ? 'unread' : '' %>">
+              <div class="avatar-wrapper">
+                <% if (otherParticipant.avatar) { %>
+                  <img src="<%= otherParticipant.avatar %>" class="conversation-avatar" alt="<%= otherParticipant.username %>">
+                <% } else { %>
+                  <div class="avatar-placeholder"><%= otherParticipant.username.charAt(0).toUpperCase() %></div>
+                <% } %>
+                <% if (otherParticipant.isOnline) { %>
+                  <span class="online-indicator"></span>
+                <% } %>
+              </div>
+              <div class="conversation-info">
+                <div class="conversation-username"><%= otherParticipant.username %></div>
+                <div class="conversation-preview">
+                  <% if (conv.lastMessage && conv.lastMessage.content) { %>
+                    <%= conv.lastMessage.sender && conv.lastMessage.sender._id.toString() === user._id.toString() ? 'You: ' : '' %><%= conv.lastMessage.content.substring(0, 40) %><%= conv.lastMessage.content.length > 40 ? '...' : '' %>
+                  <% } else { %>
+                    No messages yet
+                  <% } %>
+                </div>
+              </div>
+              <% if (conv.lastMessage && conv.lastMessage.createdAt) { %>
+                <div class="conversation-time">
+                  <%= new Date(conv.lastMessage.createdAt).toLocaleDateString() %>
+                </div>
+              <% } %>
+            </a>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Users Modal -->
+  <div class="search-users-modal" id="searchModal">
+    <div class="search-modal-content">
+      <div class="search-modal-header">
+        <input type="text" id="userSearch" placeholder="Search users..." oninput="searchUsers(this.value)">
+      </div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <%- include('../partials/scripts') %>
+  <script>
+    function openSearchModal() {
+      document.getElementById('searchModal').classList.add('active');
+      document.getElementById('userSearch').focus();
+    }
+
+    document.getElementById('searchModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('active');
+      }
+    });
+
+    let searchTimeout;
+    async function searchUsers(query) {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(async () => {
+        if (!query.trim()) {
+          document.getElementById('searchResults').innerHTML = '';
+          return;
+        }
+        
+        try {
+          const res = await fetch(`/messages/search?q=${encodeURIComponent(query)}`);
+          const data = await res.json();
+          
+          const resultsHtml = data.users.map(u => `
+            <a href="/messages/conversation/${u._id}" class="search-result-item">
+              ${u.avatar 
+                ? `<img src="${u.avatar}" class="search-result-avatar" alt="${u.username}">`
+                : `<div class="avatar-placeholder" style="width:44px;height:44px;font-size:18px;">${u.username.charAt(0).toUpperCase()}</div>`
+              }
+              <span>${u.username}</span>
+            </a>
+          `).join('');
+          
+          document.getElementById('searchResults').innerHTML = resultsHtml || '<p style="padding:16px;color:#8e8e8e;">No users found</p>';
+        } catch (err) {
+          console.error('Search error:', err);
+        }
+      }, 300);
+    }
+  </script>
+</body>
+</html>

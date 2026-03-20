@@ -1,0 +1,117 @@
+<style>
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--color-border, #dbdbdb);
+        padding: 12px 16px;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .modal-close {
+        cursor: pointer;
+        font-size: 24px;
+        color: var(--color-text-primary, #262626);
+        background: none;
+        border: none;
+        padding: 0;
+        line-height: 1;
+        transition: opacity 0.2s;
+    }
+
+    .modal-close:hover {
+        opacity: 0.6;
+    }
+
+    .modal-form {
+        padding: 20px;
+    }
+
+    .modal-form-group {
+        margin-bottom: 16px;
+    }
+
+    .modal-form-group:last-of-type {
+        margin-bottom: 20px;
+    }
+
+    .modal-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: var(--color-text-secondary, #8e8e8e);
+    }
+
+    .modal-input {
+        width: 100%;
+        border: 1px solid var(--color-border, #dbdbdb);
+        border-radius: var(--radius-sm, 4px);
+        padding: 10px 12px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+
+    .modal-input:focus {
+        border-color: var(--color-primary, #0095f6);
+    }
+
+    .modal-textarea {
+        resize: none;
+        height: 80px;
+    }
+
+    .modal-file-input {
+        font-size: 14px;
+    }
+
+    .modal-submit {
+        width: 100%;
+        background: var(--color-primary, #0095f6);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: var(--radius-sm, 4px);
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .modal-submit:hover {
+        background: var(--color-primary-hover, #1877f2);
+    }
+
+    body.dark-mode .modal-close {
+        color: #e0e0e0;
+    }
+</style>
+
+<div id="createPostModal" class="modal-overlay" onclick="closeModalOnLayout(event)">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Create New Post</h3>
+            <button type="button" class="modal-close" onclick="closeModal()" aria-label="Close modal">&times;</button>
+        </div>
+        <form action="/post" method="POST" enctype="multipart/form-data" class="modal-form">
+            <div class="modal-form-group">
+                <label class="modal-label">Post Title</label>
+                <input type="text" name="title" placeholder="Enter title (optional)" class="modal-input">
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-label">Caption</label>
+                <textarea name="caption" placeholder="Write a caption..." class="modal-input modal-textarea"></textarea>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-label">Upload Image or Video</label>
+                <input type="file" name="image" accept="image/*,video/*" required class="modal-file-input">
+            </div>
+            <button type="submit" class="modal-submit">Post</button>
+        </form>
+    </div>
+</div>

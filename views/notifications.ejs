@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notifications - Blogs</title>
+  <%- include('partials/common-styles') %>
+  <style>
+    .notifications-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .notifications-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color, #dbdbdb);
+      margin-bottom: 16px;
+    }
+    .notifications-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .mark-all-btn {
+      padding: 8px 16px;
+      background: transparent;
+      color: #0095f6;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .notification-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border-radius: 8px;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.2s;
+    }
+    .notification-item:hover {
+      background: var(--hover-color, #fafafa);
+    }
+    .notification-item.unread {
+      background: var(--highlight-bg, #f0f8ff);
+    }
+    .notification-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .avatar-placeholder {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #efefef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #8e8e8e;
+    }
+    .notification-content {
+      flex: 1;
+    }
+    .notification-text {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .notification-text strong {
+      font-weight: 600;
+    }
+    .notification-time {
+      font-size: 12px;
+      color: #8e8e8e;
+      margin-top: 4px;
+    }
+    .notification-image {
+      width: 44px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .notification-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .icon-like { background: #ed4956; }
+    .icon-comment { background: #0095f6; }
+    .icon-follow { background: #8e44ad; }
+    .icon-system { background: #f39c12; }
+    .empty-notifications {
+      text-align: center;
+      padding: 60px 20px;
+      color: #8e8e8e;
+    }
+    .empty-notifications svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: var(--tab-bg, #efefef);
+      color: var(--text-color, #262626);
+      text-decoration: none;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .filter-tab.active {
+      background: #0095f6;
+      color: white;
+    }
+    .unread-badge {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #0095f6;
+      border-radius: 50%;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/sidebar') %>
+  <%- include('partials/mobile-nav') %>
+
+  <div class="main-content">
+    <%- include('partials/top-nav') %>
+    
+    <div class="notifications-container">
+      <div class="notifications-header">
+        <h2>Notifications <% if (unreadCount > 0) { %><span style="font-size:16px;color:#8e8e8e;">(<%= unreadCount %>)</span><% } %></h2>
+        <% if (notifications.length > 0) { %>
+          <button class="mark-all-btn" onclick="markAllRead()">Mark all as read</button>
+        <% } %>
+      </div>
+
+      <% if (notifications.length === 0) { %>
+        <div class="empty-notifications">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"></path>
+          </svg>
+          <h3>No notifications yet</h3>
+          <p>When someone likes or comments on your posts, you'll see it here.</p>
+        </div>
+      <% } else { %>
+        <% notifications.forEach(notif => { %>
+          <% 
+            let link = notif.link || '#';
+            let text = '';
+            let iconClass = '';
+            
+            switch(notif.type) {
+              case 'like':
+                text = 'liked your post';
+                iconClass = 'icon-like';
+                if (notif.post) link = `/post/${notif.post._id}`;
+                break;
+              case 'comment':
+                text = `commented: "${notif.comment || notif.body || ''}"`;
+                iconClass = 'icon-comment';
+                if (notif.post) link = `/post/${notif.post._id}`;
+                break;
+              case 'follow':
+                text = 'started following you';
+                iconClass = 'icon-follow';
+                if (notif.sender) link = `/user/${notif.sender._id}`;
+                break;
+              case 'follow_request':
+                text = 'requested to follow you';
+                iconClass = 'icon-follow';
+                break;
+              case 'mention':
+                text = 'mentioned you in a post';
+                iconClass = 'icon-comment';
+                break;
+              case 'message':
+                text = `sent you a message`;
+                iconClass = 'icon-comment';
+                break;
+              case 'system':
+                text = notif.body || 'System notification';
+                iconClass = 'icon-system';
+                break;
+              default:
+                text = notif.body || 'Notification';
+            }
+          %>
+          <a href="<%= link %>" class="notification-item <%= !notif.isRead ? 'unread' : '' %>" onclick="markRead('<%= notif._id %>')">
+            <% if (notif.sender && notif.sender.avatar) { %>
+              <img src="<%= notif.sender.avatar %>" class="notification-avatar" alt="<%= notif.sender.username %>">
+            <% } else if (notif.sender) { %>
+              <div class="avatar-placeholder"><%= notif.sender.username.charAt(0).toUpperCase() %></div>
+            <% } else { %>
+              <div class="notification-icon <%= iconClass %>">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"></path>
+                </svg>
+              </div>
+            <% } %>
+            
+            <div class="notification-content">
+              <div class="notification-text">
+                <% if (notif.sender) { %><strong><%= notif.sender.username %></strong> <% } %>
+                <%= text %>
+                <% if (!notif.isRead) { %><span class="unread-badge"></span><% } %>
+              </div>
+              <div class="notification-time">
+                <%= new Date(notif.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %>
+                at <%= new Date(notif.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %>
+              </div>
+            </div>
+            
+            <% if (notif.post && notif.post.image) { %>
+              <img src="<%= notif.post.image %>" class="notification-image" alt="Post">
+            <% } %>
+          </a>
+        <% }) %>
+        
+        <% if (hasMore) { %>
+          <div style="text-align:center;padding:20px;">
+            <a href="/notifications?page=<%= currentPage + 1 %>" style="color:#0095f6;text-decoration:none;font-weight:600;">Load more</a>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('partials/scripts') %>
+  <script>
+    async function markRead(id) {
+      try {
+        await fetch(`/notifications/read/${id}`, { method: 'POST' });
+      } catch (err) {
+        console.error('Error marking notification as read:', err);
+      }
+    }
+
+    async function markAllRead() {
+      try {
+        await fetch('/notifications/read-all', { method: 'POST' });
+        // Remove unread styling
+        document.querySelectorAll('.notification-item.unread').forEach(el => {
+          el.classList.remove('unread');
+        });
+        document.querySelectorAll('.unread-badge').forEach(el => {
+          el.remove();
+        });
+      } catch (err) {
+        console.error('Error marking all as read:', err);
+      }
+    }
+  </script>
+</body>
+</html>

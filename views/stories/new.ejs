@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Create Story - Blogs</title>
+  <%- include('../partials/common-styles') %>
+    <style>
+      .story-create-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .story-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-color, #dbdbdb);
+        margin-bottom: 24px;
+      }
+
+      .story-header h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .back-link {
+        color: var(--text-color, #262626);
+        text-decoration: none;
+      }
+
+      .story-preview {
+        width: 100%;
+        aspect-ratio: 9/16;
+        max-height: 60vh;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .story-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      .upload-placeholder {
+        text-align: center;
+        color: white;
+        cursor: pointer;
+      }
+
+      .upload-placeholder svg {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border-color, #dbdbdb);
+        border-radius: 8px;
+        font-size: 14px;
+        background: var(--input-bg, #fafafa);
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+      }
+
+      .submit-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      #fileInput {
+        display: none;
+      }
+    </style>
+</head>
+
+<body>
+  <%- include('../partials/sidebar') %>
+    <%- include('../partials/mobile-nav') %>
+
+      <div class="main-content">
+        <div class="story-create-container">
+          <div class="story-header">
+            <a href="/stories" class="back-link">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </a>
+            <h2>Create Story</h2>
+            <div style="width:24px;"></div>
+          </div>
+
+          <form id="storyForm" enctype="multipart/form-data">
+            <div class="story-preview" onclick="document.getElementById('fileInput').click()">
+              <div class="upload-placeholder" id="uploadPlaceholder">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <p>Click to add photo or video</p>
+              </div>
+              <img id="previewImage" style="display:none;">
+            </div>
+
+            <input type="file" id="fileInput" name="media" accept="image/*,video/*" onchange="previewFile(this)">
+
+            <div class="form-group">
+              <label for="caption">Caption (optional)</label>
+              <textarea id="caption" name="caption" placeholder="Write a caption..." maxlength="500"></textarea>
+            </div>
+
+            <div class="form-group">
+              <div class="checkbox-group">
+                <input type="checkbox" id="closeFriends" name="closeFriendsOnly" value="true">
+                <label for="closeFriends" style="margin:0;">Close Friends Only</label>
+              </div>
+              <small style="color:#8e8e8e;">Only your close friends will see this story</small>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn" disabled>Share Story</button>
+          </form>
+        </div>
+      </div>
+
+      <%- include('../partials/scripts') %>
+        <script>
+          let selectedFile = null;
+
+          function previewFile(input) {
+            if (input.files && input.files[0]) {
+              selectedFile = input.files[0];
+              const reader = new FileReader();
+
+              reader.onload = function (e) {
+                document.getElementById('uploadPlaceholder').style.display = 'none';
+                const preview = document.getElementById('previewImage');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                document.getElementById('submitBtn').disabled = false;
+              };
+
+              reader.readAsDataURL(selectedFile);
+            }
+          }
+
+          document.getElementById('storyForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (!selectedFile) {
+              alert('Please select an image or video');
+              return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sharing...';
+
+            const formData = new FormData();
+            formData.append('media', selectedFile);
+            formData.append('caption', document.getElementById('caption').value);
+            formData.append('closeFriendsOnly', document.getElementById('closeFriends').checked);
+
+            try {
+              console.log("SENDING FETCH REQUEST...");
+              const res = await fetch('/stories', {
+                method: 'POST',
+                body: formData
+              });
+
+              console.log("RESPONSE RECEIVED. Status:", res.status);
+              const data = await res.json();
+              console.log("PARSED DATA:", data);
+
+              if (data.success) {
+                console.log("SUCCESS! Redirecting...");
+                window.location.href = '/stories';
+              } else {
+                console.error("SERVER DECLARATION:", data);
+                alert(data.error || 'Failed to create story based on server response.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Share Story';
+              }
+            } catch (err) {
+              console.error('Fetch Crash Error:', err);
+              alert('Fetch Crash: ' + err.message);
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Share Story';
+            }
+          });
+        </script>
+</body>
+
+</html>

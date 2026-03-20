@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Management - Admin</title>
+    <%- include('../partials/common-styles') %>
+    <style>
+        .admin-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--color-border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .admin-header h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+        
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .admin-nav a {
+            padding: 10px 20px;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--color-text-primary);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .admin-nav a:hover, .admin-nav a.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+        }
+        
+        .search-box button {
+            padding: 10px 20px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            cursor: pointer;
+        }
+        
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .post-card-admin {
+            background: var(--color-bg-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .post-card-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+        
+        .post-card-admin .image-container {
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background: #000;
+        }
+        
+        .post-card-admin .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .post-card-admin .card-body {
+            padding: 16px;
+        }
+        
+        .post-card-admin .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .post-card-admin .user-info img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .post-card-admin .user-info .avatar-placeholder {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .post-card-admin .caption {
+            font-size: 14px;
+            color: var(--color-text-primary);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .post-card-admin .stats {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        .post-card-admin .stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .post-card-admin .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .action-btn:hover {
+            background: var(--color-bg-secondary);
+        }
+        
+        .action-btn.danger {
+            color: #c62828;
+            border-color: #c62828;
+        }
+        
+        .action-btn.danger:hover {
+            background: #ffebee;
+        }
+        
+        .action-btn.warning {
+            color: #f57c00;
+            border-color: #f57c00;
+        }
+        
+        .action-btn.warning:hover {
+            background: #fff3e0;
+        }
+        
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-archived {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .pagination a {
+            padding: 8px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--color-text-primary);
+        }
+        
+        .pagination a.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .stats-summary {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* Dark mode */
+        body.dark-mode .post-card-admin {
+            background: #1a1a1a;
+            border-color: #333;
+        }
+        
+        body.dark-mode .badge-archived {
+            background: #4a1515;
+            color: #ef9a9a;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/sidebar') %>
+    <%- include('../partials/mobile-nav') %>
+    
+    <div class="main-content">
+        <%- include('../partials/top-nav') %>
+        
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Post Management</h1>
+                <nav class="admin-nav">
+                    <a href="/admin">Dashboard</a>
+                    <a href="/admin/users">Users</a>
+                    <a href="/admin/posts" class="active">Posts</a>
+                    <a href="/admin/analytics">Analytics</a>
+                    <a href="/reports/admin/all">Reports</a>
+                    <a href="/admin/verifications">Verifications</a>
+                    <a href="/" style="margin-left: auto;">Back to Site</a>
+                    <a href="/logout" style="background: #ed4956; color: white; border-color: #ed4956;">Logout</a>
+                </nav>
+            </div>
+            
+            <form class="toolbar" method="GET" action="/admin/posts">
+                <div class="search-box">
+                    <input type="text" name="search" placeholder="Search posts by caption or title..." value="<%= search %>">
+                    <button type="submit">Search</button>
+                </div>
+                <select name="filter" class="filter-select" onchange="this.form.submit()">
+                    <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All Posts</option>
+                    <option value="active" <%= filter === 'active' ? 'selected' : '' %>>Active Only</option>
+                    <option value="archived" <%= filter === 'archived' ? 'selected' : '' %>>Archived</option>
+                </select>
+            </form>
+            
+            <p class="stats-summary">Showing <%= posts.length %> of <%= totalPosts %> posts</p>
+            
+            <div class="posts-grid">
+                <% posts.forEach(p => { %>
+                <div class="post-card-admin" data-post-id="<%= p._id %>">
+                    <div class="image-container">
+                        <img src="<%= p.image %>" alt="Post">
+                    </div>
+                    <div class="card-body">
+                        <div class="user-info">
+                            <% if (p.user && p.user.avatar) { %>
+                                <img src="<%= p.user.avatar %>" alt="<%= p.user.username %>">
+                            <% } else { %>
+                                <div class="avatar-placeholder"><%= p.user ? p.user.username.charAt(0).toUpperCase() : 'U' %></div>
+                            <% } %>
+                            <strong>@<%= p.user ? p.user.username : 'unknown' %></strong>
+                            <% if (p.isArchived) { %>
+                                <span class="badge badge-archived">Archived</span>
+                            <% } %>
+                        </div>
+                        
+                        <p class="caption"><%= p.caption || 'No caption' %></p>
+                        
+                        <div class="stats">
+                            <span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16.792 3.904A4.989 4.989 0 0121.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.077 2.5 12.194 2.5 9.122a4.989 4.989 0 014.708-5.218 4.21 4.21 0 013.675 1.941c.325.487.568 1.05.617 1.649.034.417.433.417.467 0a4.213 4.213 0 013.675-1.941 4.213 4.213 0 013.15 1.353z"/></svg>
+                                <%= p.likes.length %>
+                            </span>
+                            <span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.656 17.008a9.993 9.993 0 10-3.59 3.615L22 22z"/></svg>
+                                <%= p.comments.length %>
+                            </span>
+                            <span><%= new Date(p.createdAt).toLocaleDateString() %></span>
+                        </div>
+                        
+                        <div class="actions">
+                            <a href="/post/<%= p._id %>" class="action-btn">View</a>
+                            <button class="action-btn warning" onclick="toggleArchive('<%= p._id %>')">
+                                <%= p.isArchived ? 'Restore' : 'Archive' %>
+                            </button>
+                            <button class="action-btn danger" onclick="deletePost('<%= p._id %>')">Delete</button>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+            
+            <% if (totalPages > 1) { %>
+            <div class="pagination">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <a href="/admin/posts?page=<%= i %>&search=<%= search %>&filter=<%= filter %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+    </div>
+    
+    <%- include('../partials/scripts') %>
+    
+    <script>
+        async function toggleArchive(postId) {
+            try {
+                const res = await fetch(`/admin/post/${postId}/archive`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    location.reload();
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (err) {
+                showToast('Failed to update post', 'error');
+            }
+        }
+        
+        async function deletePost(postId) {
+            if (!confirm('Are you sure you want to DELETE this post? This action cannot be undone!')) return;
+            
+            try {
+                const res = await fetch(`/admin/post/${postId}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    location.reload();
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (err) {
+                showToast('Failed to delete post', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

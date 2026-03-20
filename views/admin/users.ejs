@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin</title>
+    <%- include('../partials/common-styles') %>
+    <style>
+        .admin-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--color-border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .admin-header h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+        
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .admin-nav a {
+            padding: 10px 20px;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--color-text-primary);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .admin-nav a:hover, .admin-nav a.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+        }
+        
+        .search-box button {
+            padding: 10px 20px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            cursor: pointer;
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--color-bg-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .users-table th,
+        .users-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border-light);
+        }
+        
+        .users-table th {
+            background: var(--color-bg-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-text-secondary);
+        }
+        
+        .users-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .users-table tr:hover {
+            background: var(--color-bg-secondary);
+        }
+        
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-cell img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-cell .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+        
+        .user-cell .info strong {
+            display: block;
+        }
+        
+        .user-cell .info small {
+            color: var(--color-text-secondary);
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-admin { background: #e3f2fd; color: #1565c0; }
+        .badge-moderator { background: #f3e5f5; color: #7b1fa2; }
+        .badge-user { background: #f5f5f5; color: #616161; }
+        .badge-verified { background: #e8f5e9; color: #2e7d32; }
+        .badge-banned { background: #ffebee; color: #c62828; }
+        
+        .actions-cell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 8px 14px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .action-btn:hover {
+            background: var(--color-bg-secondary);
+        }
+        
+        .action-btn.danger {
+            color: #c62828;
+            border-color: #c62828;
+        }
+        
+        .action-btn.danger:hover {
+            background: #ffebee;
+        }
+        
+        .action-btn.success {
+            color: #2e7d32;
+            border-color: #2e7d32;
+        }
+        
+        .action-btn.success:hover {
+            background: #e8f5e9;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .pagination a {
+            padding: 8px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--color-text-primary);
+        }
+        
+        .pagination a.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .stats-summary {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .role-select {
+            padding: 4px 8px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            font-size: 12px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+        }
+
+        /* Dark mode */
+        body.dark-mode .users-table {
+            background: #1a1a1a;
+            border-color: #333;
+        }
+        
+        body.dark-mode .users-table th {
+            background: #252525;
+        }
+        
+        body.dark-mode .badge-admin { background: #1a237e; color: #90caf9; }
+        body.dark-mode .badge-moderator { background: #4a148c; color: #ce93d8; }
+        body.dark-mode .badge-user { background: #333; color: #bbb; }
+        body.dark-mode .badge-verified { background: #1b3d20; color: #81c784; }
+        body.dark-mode .badge-banned { background: #4a1515; color: #ef9a9a; }
+        
+        @media (max-width: 900px) {
+            .users-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/sidebar') %>
+    <%- include('../partials/mobile-nav') %>
+    
+    <div class="main-content">
+        <%- include('../partials/top-nav') %>
+        
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>User Management</h1>
+                <nav class="admin-nav">
+                    <a href="/admin">Dashboard</a>
+                    <a href="/admin/users" class="active">Users</a>
+                    <a href="/admin/posts">Posts</a>
+                    <a href="/admin/analytics">Analytics</a>
+                    <a href="/reports/admin/all">Reports</a>
+                    <a href="/admin/verifications">Verifications</a>
+                    <a href="/" style="margin-left: auto;">Back to Site</a>
+                    <a href="/logout" style="background: #ed4956; color: white; border-color: #ed4956;">Logout</a>
+                </nav>
+            </div>
+            
+            <form class="toolbar" method="GET" action="/admin/users">
+                <div class="search-box">
+                    <input type="text" name="search" placeholder="Search users by username, email, or name..." value="<%= search %>">
+                    <button type="submit">Search</button>
+                </div>
+                <select name="filter" class="filter-select" onchange="this.form.submit()">
+                    <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All Users</option>
+                    <option value="admin" <%= filter === 'admin' ? 'selected' : '' %>>Admins Only</option>
+                    <option value="moderator" <%= filter === 'moderator' ? 'selected' : '' %>>Moderators</option>
+                    <option value="verified" <%= filter === 'verified' ? 'selected' : '' %>>Verified</option>
+                    <option value="banned" <%= filter === 'banned' ? 'selected' : '' %>>Banned</option>
+                </select>
+            </form>
+            
+            <p class="stats-summary">Showing <%= users.length %> of <%= totalUsers %> users</p>
+            
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Posts</th>
+                        <th>Followers</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach(u => { %>
+                    <tr data-user-id="<%= u._id %>">
+                        <td>
+                            <div class="user-cell">
+                                <% if (u.avatar) { %>
+                                    <img src="<%= u.avatar %>" alt="<%= u.username %>">
+                                <% } else { %>
+                                    <div class="avatar-placeholder"><%= u.username.charAt(0).toUpperCase() %></div>
+                                <% } %>
+                                <div class="info">
+                                    <strong>@<%= u.username %></strong>
+                                    <small><%= u.email || 'No email' %></small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <% if (user.role === 'admin') { %>
+                                <select class="role-select" onchange="changeRole('<%= u._id %>', this.value)">
+                                    <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>User</option>
+                                    <option value="moderator" <%= u.role === 'moderator' ? 'selected' : '' %>>Moderator</option>
+                                    <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                                </select>
+                            <% } else { %>
+                                <span class="badge badge-<%= u.role %>"><%= u.role %></span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <% if (u.isVerified) { %>
+                                <span class="badge badge-verified">Verified</span>
+                            <% } %>
+                            <% if (u.isBanned) { %>
+                                <span class="badge badge-banned">Banned</span>
+                            <% } %>
+                        </td>
+                        <td><%= u.postCount %></td>
+                        <td><%= u.followerCount %></td>
+                        <td><%= new Date(u.createdAt).toLocaleDateString() %></td>
+                        <td>
+                            <div class="actions-cell">
+                                <a href="/user/<%= u._id %>" class="action-btn">View</a>
+                                <button class="action-btn <%= u.isVerified ? '' : 'success' %>" onclick="toggleVerify('<%= u._id %>')">
+                                    <%= u.isVerified ? 'Unverify' : 'Verify' %>
+                                </button>
+                                <% if (u.role !== 'admin') { %>
+                                    <button class="action-btn <%= u.isBanned ? 'success' : 'danger' %>" onclick="toggleBan('<%= u._id %>')">
+                                        <%= u.isBanned ? 'Unban' : 'Ban' %>
+                                    </button>
+                                    <% if (user.role === 'admin') { %>
+                                        <button class="action-btn danger" onclick="deleteUser('<%= u._id %>')">Delete</button>
+                                    <% } %>
+                                <% } %>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            
+            <% if (totalPages > 1) { %>
+            <div class="pagination">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <a href="/admin/users?page=<%= i %>&search=<%= search %>&filter=<%= filter %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+    </div>
+    
+    <%- include('../partials/scripts') %>
+    
+    <script>
+        async function toggleBan(userId) {
+            if (!confirm('Are you sure you want to toggle ban status?')) return;
+            
+            try {
+                const res = await fetch(`/admin/user/${userId}/ban`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    location.reload();
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (err) {
+                showToast('Failed to update user', 'error');
+            }
+        }
+        
+        async function toggleVerify(userId) {
+            try {
+                const res = await fetch(`/admin/user/${userId}/verify`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    location.reload();
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (err) {
+                showToast('Failed to update user', 'error');
+            }
+        }
+        
+        async function changeRole(userId, role) {
+            try {
+                const res = await fetch(`/admin/user/${userId}/role`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.error, 'error');
+                    location.reload();
+                }
+            } catch (err) {
+                showToast('Failed to update role', 'error');
+            }
+        }
+        
+        async function deleteUser(userId) {
+            if (!confirm('Are you sure you want to DELETE this user? This will also delete all their posts. This action cannot be undone!')) return;
+            
+            try {
+                const res = await fetch(`/admin/user/${userId}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    location.reload();
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (err) {
+                showToast('Failed to delete user', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+[dotenv@17.3.1] injecting env (6) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+Server running on http://localhost:3000
+Connected to MongoDB (mongodb://localhost:27017/mini-insta)
+(node:18227) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"user":1,"status":1} for model "VerificationRequest". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+== incoming story POST ==
+req.body: [Object: null prototype] {}
+req.file: {
+  fieldname: 'media',
+  originalname: 'server.js',
+  encoding: '7bit',
+  mimetype: 'application/javascript',
+  destination: 'uploads/',
+  filename: '53dd5b3ec0ca899f887e70807d212835',
+  path: 'uploads/53dd5b3ec0ca899f887e70807d212835',
+  size: 2385
+}
+Starting Cloudinary upload from path: uploads/53dd5b3ec0ca899f887e70807d212835
+Cloudinary Upload Success: https://res.cloudinary.com/dfsfoolzs/raw/upload/v1772175234/mini-insta/aq4xdhgmjzsijzxgybuk
+== incoming story POST ==
+req.body: [Object: null prototype] {
+  caption: 'Hey Guys I am studying!!1',
+  closeFriendsOnly: 'false'
+}
+req.file: {
+  fieldname: 'media',
+  originalname: 'WhatsApp Image 2026-02-06 at 13.57.54.jpeg',
+  encoding: '7bit',
+  mimetype: 'image/jpeg',
+  destination: 'uploads/',
+  filename: '396d4e92c43f647794879d71c04e8efa',
+  path: 'uploads/396d4e92c43f647794879d71c04e8efa',
+  size: 337616
+}
+Starting Cloudinary upload from path: uploads/396d4e92c43f647794879d71c04e8efa
+Cloudinary Upload Error: { message: 'Resource is invalid', name: 'Error', http_code: 400 }
+Create Story Error: { message: 'Resource is invalid', name: 'Error', http_code: 400 }
+Error: ENOENT: no such file or directory, open 'uploads/9276a61d41029bf2c44c05a18ee4863c'

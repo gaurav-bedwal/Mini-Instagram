@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogs (Mini Instagram) - Project Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #fff;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+                font-size: 11pt;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            pre {
+                white-space: pre-wrap;
+                font-size: 9pt;
+            }
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            color: #0095f6;
+            border-bottom: 3px solid #0095f6;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            font-size: 1.8em;
+            color: #262626;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dbdbdb;
+        }
+        
+        h3 {
+            font-size: 1.3em;
+            color: #0095f6;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        h4 {
+            font-size: 1.1em;
+            color: #666;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+        
+        th, td {
+            border: 1px solid #dbdbdb;
+            padding: 10px 12px;
+            text-align: left;
+        }
+        
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #262626;
+        }
+        
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+        
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-size: 0.85em;
+        }
+        
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        
+        .code-keyword { color: #569cd6; }
+        .code-string { color: #ce9178; }
+        .code-comment { color: #6a9955; }
+        .code-function { color: #dcdcaa; }
+        
+        .toc {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .toc h3 {
+            margin-top: 0;
+            color: #262626;
+        }
+        
+        .toc ol {
+            margin-bottom: 0;
+        }
+        
+        .toc a {
+            color: #0095f6;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .diagram {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #0095f6;
+        }
+        
+        .feature-card h4 {
+            margin-top: 0;
+            color: #0095f6;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        
+        .badge-get { background: #d4edda; color: #155724; }
+        .badge-post { background: #cce5ff; color: #004085; }
+        .badge-delete { background: #f8d7da; color: #721c24; }
+        .badge-auth { background: #fff3cd; color: #856404; }
+        
+        .note {
+            background: #e7f3ff;
+            border-left: 4px solid #0095f6;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .cover {
+            text-align: center;
+            padding: 60px 20px;
+            margin-bottom: 40px;
+        }
+        
+        .cover h1 {
+            border: none;
+            font-size: 3em;
+        }
+        
+        .cover .subtitle {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .cover .meta {
+            color: #8e8e8e;
+            font-size: 0.9em;
+        }
+        
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cover">
+    <h1>📸 Blogs</h1>
+    <div class="subtitle">Mini Instagram Clone - Full Stack Social Media Application</div>
+    <div class="meta">
+        <p><strong>Technology:</strong> Node.js | Express.js | MongoDB | EJS | JWT</p>
+        <p><strong>Version:</strong> 1.0.0</p>
+        <p><strong>Date:</strong> February 27, 2026</p>
+    </div>
+</div>
+
+<div class="toc">
+    <h3>📋 Table of Contents</h3>
+    <ol>
+        <li><a href="#overview">Project Overview</a></li>
+        <li><a href="#tech-stack">Tech Stack</a></li>
+        <li><a href="#architecture">Project Architecture</a></li>
+        <li><a href="#authentication">Authentication System (JWT)</a></li>
+        <li><a href="#database">Database Models</a></li>
+        <li><a href="#api">API Endpoints</a></li>
+        <li><a href="#frontend">Frontend Pages</a></li>
+        <li><a href="#uploads">File Upload System</a></li>
+        <li><a href="#features">Key Features</a></li>
+        <li><a href="#security">Security Features</a></li>
+        <li><a href="#admin">Admin Panel</a></li>
+    </ol>
+</div>
+
+<h2 id="overview">1. Project Overview</h2>
+
+<p><strong>Blogs</strong> is a full-stack social media application inspired by Instagram. It allows users to share photos, follow other users, interact with posts through likes and comments, share stories, and communicate via direct messages.</p>
+
+<h3>Core Functionality:</h3>
+<ul>
+    <li>📸 Photo sharing with captions and hashtags</li>
+    <li>👥 User profiles with followers/following</li>
+    <li>💬 Comments and likes on posts</li>
+    <li>📨 Direct messaging between users</li>
+    <li>📱 Stories that expire after 24 hours</li>
+    <li>🔔 Real-time notifications</li>
+    <li>🔒 Private accounts and user blocking</li>
+    <li>👨‍💼 Admin dashboard for content moderation</li>
+    <li>✅ User verification system (blue badge)</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2 id="tech-stack">2. Tech Stack</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Layer</th>
+            <th>Technology</th>
+            <th>Version</th>
+            <th>Purpose</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Runtime</strong></td>
+            <td>Node.js</td>
+            <td>≥18.0.0</td>
+            <td>JavaScript runtime</td>
+        </tr>
+        <tr>
+            <td><strong>Framework</strong></td>
+            <td>Express.js</td>
+            <td>5.2.1</td>
+            <td>Web server framework</td>
+        </tr>
+        <tr>
+            <td><strong>Database</strong></td>
+            <td>MongoDB</td>
+            <td>-</td>
+            <td>NoSQL database</td>
+        </tr>
+        <tr>
+            <td><strong>ODM</strong></td>
+            <td>Mongoose</td>
+            <td>9.2.1</td>
+            <td>MongoDB object modeling</td>
+        </tr>
+        <tr>
+            <td><strong>Template Engine</strong></td>
+            <td>EJS</td>
+            <td>4.0.1</td>
+            <td>Server-side rendering</td>
+        </tr>
+        <tr>
+            <td><strong>Authentication</strong></td>
+            <td>JWT (jsonwebtoken)</td>
+            <td>9.0.3</td>
+            <td>Token-based auth</td>
+        </tr>
+        <tr>
+            <td><strong>Password Hashing</strong></td>
+            <td>bcryptjs</td>
+            <td>3.0.3</td>
+            <td>Secure password storage</td>
+        </tr>
+        <tr>
+            <td><strong>File Upload</strong></td>
+            <td>Multer</td>
+            <td>2.0.2</td>
+            <td>Multipart form handling</td>
+        </tr>
+        <tr>
+            <td><strong>Cloud Storage</strong></td>
+            <td>Cloudinary</td>
+            <td>2.9.0</td>
+            <td>Image storage & CDN</td>
+        </tr>
+        <tr>
+            <td><strong>Security</strong></td>
+            <td>Helmet</td>
+            <td>8.1.0</td>
+            <td>HTTP security headers</td>
+        </tr>
+        <tr>
+            <td><strong>Rate Limiting</strong></td>
+            <td>express-rate-limit</td>
+            <td>8.2.1</td>
+            <td>DDoS protection</td>
+        </tr>
+        <tr>
+            <td><strong>Validation</strong></td>
+            <td>express-validator</td>
+            <td>7.3.1</td>
+            <td>Input validation</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2 id="architecture">3. Project Architecture</h2>
+
+<div class="diagram">
+┌─────────────────────────────────────────────────────────────────────┐
+│                           CLIENT (Browser)                          │
+│                    HTML/CSS/JavaScript (EJS Templates)              │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 │ HTTP Requests
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                         EXPRESS SERVER                              │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │                     MIDDLEWARE STACK                         │   │
+│  │  • helmet() - Security headers                               │   │
+│  │  • express.json() - JSON parsing                             │   │
+│  │  • cookieParser() - Cookie handling                          │   │
+│  │  • express-session - Session management                      │   │
+│  │  • authMiddleware - JWT verification                         │   │
+│  │  • rateLimiter - Request throttling                          │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                 │                                   │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │                        ROUTERS (7)                           │   │
+│  │  • authRouter.js    - Authentication & user management       │   │
+│  │  • postRouter.js    - Posts, comments, likes                 │   │
+│  │  • storyRouter.js   - Stories & highlights                   │   │
+│  │  • messageRouter.js - Direct messaging                       │   │
+│  │  • notificationRouter.js - Notifications                     │   │
+│  │  • reportRouter.js  - Content reporting                      │   │
+│  │  • adminRouter.js   - Admin dashboard                        │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                      DATA LAYER                                     │
+│  ┌───────────────────┐    ┌────────────────────┐                   │
+│  │   MONGOOSE ODM    │    │     CLOUDINARY     │                   │
+│  │   (11 Models)     │    │   (Image Storage)  │                   │
+│  └─────────┬─────────┘    └────────────────────┘                   │
+│            │                                                        │
+│            ▼                                                        │
+│  ┌───────────────────┐                                              │
+│  │   MONGODB ATLAS   │                                              │
+│  └───────────────────┘                                              │
+└─────────────────────────────────────────────────────────────────────┘
+</div>
+
+<h3>Directory Structure:</h3>
+<pre><code>mini-insta/
+├── server.js              # Main entry point
+├── package.json           # Dependencies & scripts
+├── seed.js                # Database seeding script
+│
+├── middleware/            # Express middleware
+│   ├── auth.js            # JWT authentication
+│   ├── admin.js           # Admin role checking
+│   └── validators.js      # Input validation rules
+│
+├── models/                # Mongoose schemas (11 files)
+│   ├── User.js            # User accounts
+│   ├── Post.js            # Photo posts
+│   ├── Story.js           # Temporary stories
+│   ├── Message.js         # Direct messages
+│   ├── Notification.js    # User notifications
+│   ├── Report.js          # Content reports
+│   └── ...                # Other models
+│
+├── router/                # API routes (7 files)
+│   ├── authRouter.js
+│   ├── postRouter.js
+│   └── ...
+│
+├── utils/
+│   └── cloudinary.js      # Image upload helper
+│
+└── views/                 # EJS templates
+    ├── index.ejs          # Home feed
+    ├── login.ejs          # Login page
+    ├── profile.ejs        # User profile
+    ├── partials/          # Reusable components
+    ├── admin/             # Admin pages
+    └── messages/          # DM pages
+</code></pre>
+
+<div class="page-break"></div>
+
+<h2 id="authentication">4. Authentication System (JWT)</h2>
+
+<h3>How JWT Authentication Works:</h3>
+
+<div class="diagram">
+1. REGISTRATION
+   ┌────────┐     POST /register      ┌────────┐
+   │ Client │ ─────────────────────▶ │ Server │
+   │        │  {username, password,   │        │
+   │        │   email, avatar}        │        │
+   └────────┘                         └───┬────┘
+                                          │
+                              ┌───────────▼───────────┐
+                              │  1. Validate input    │
+                              │  2. Hash password     │
+                              │     (bcrypt, 12 rounds)
+                              │  3. Upload avatar     │
+                              │  4. Save to MongoDB   │
+                              │  5. Generate JWT      │
+                              │  6. Set HTTP-only     │
+                              │     cookie            │
+                              └───────────────────────┘
+
+2. LOGIN
+   ┌────────┐    POST /login          ┌────────┐
+   │ Client │ ─────────────────────▶ │ Server │
+   │        │  {username, password}   │        │
+   └────────┘                         └───┬────┘
+                                          │
+                              ┌───────────▼───────────┐
+                              │  1. Find user in DB   │
+                              │  2. Compare password  │
+                              │     (bcrypt.compare)  │
+                              │  3. Generate JWT      │
+                              │  4. Record login      │
+                              │     (IP, device)      │
+                              │  5. Set cookie        │
+                              └───────────────────────┘
+
+3. PROTECTED ROUTES
+   ┌────────┐   GET /protected        ┌────────┐
+   │ Client │ ─────────────────────▶ │ Server │
+   │  🍪    │   Cookie: token=xyz     │        │
+   └────────┘                         └───┬────┘
+                                          │
+                              ┌───────────▼───────────┐
+                              │  auth.js middleware   │
+                              │  1. Extract token     │
+                              │  2. jwt.verify()      │
+                              │  3. Load user from DB │
+                              │  4. Attach req.user   │
+                              │  5. next()            │
+                              └───────────────────────┘
+</div>
+
+<h3>JWT Token Configuration:</h3>
+<pre><code>// Token Generation
+const token = jwt.sign(
+  { id: user._id },           // Payload
+  process.env.JWT_SECRET,     // Secret key
+  { expiresIn: '7d' }         // Expiration: 7 days
+);
+
+// Cookie Settings
+res.cookie('token', token, {
+  httpOnly: true,             // Prevents XSS attacks
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',            // CSRF protection
+  maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days
+});
+</code></pre>
+
+<h3>Auth Middleware Implementation:</h3>
+<pre><code>const auth = async (req, res, next) => {
+  try {
+    // 1. Get token from cookie
+    const token = req.cookies.token;
+    if (!token) return res.redirect('/login');
+    
+    // 2. Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // 3. Find user and attach to request
+    const user = await User.findById(decoded.id);
+    if (!user || user.isBanned) return res.redirect('/login');
+    
+    req.user = user;
+    next();
+  } catch (err) {
+    res.redirect('/login');
+  }
+};
+</code></pre>
+
+<div class="page-break"></div>
+
+<h2 id="database">5. Database Models</h2>
+
+<h3>User Model</h3>
+<table>
+    <thead>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>username</td><td>String</td><td>Unique, lowercase, required</td></tr>
+        <tr><td>email</td><td>String</td><td>Optional email address</td></tr>
+        <tr><td>password</td><td>String</td><td>Bcrypt hashed password</td></tr>
+        <tr><td>avatar</td><td>String</td><td>Cloudinary URL</td></tr>
+        <tr><td>bio</td><td>String</td><td>Max 150 characters</td></tr>
+        <tr><td>role</td><td>Enum</td><td>'user', 'admin', 'moderator'</td></tr>
+        <tr><td>isVerified</td><td>Boolean</td><td>Blue checkmark status</td></tr>
+        <tr><td>isPrivate</td><td>Boolean</td><td>Private account flag</td></tr>
+        <tr><td>isBanned</td><td>Boolean</td><td>Account ban status</td></tr>
+        <tr><td>followers</td><td>[ObjectId]</td><td>Users following this account</td></tr>
+        <tr><td>following</td><td>[ObjectId]</td><td>Users this account follows</td></tr>
+        <tr><td>blockedUsers</td><td>[ObjectId]</td><td>Blocked users list</td></tr>
+        <tr><td>savedPosts</td><td>[ObjectId]</td><td>Bookmarked posts</td></tr>
+        <tr><td>loginHistory</td><td>Array</td><td>IP, device, timestamp</td></tr>
+    </tbody>
+</table>
+
+<h3>Post Model</h3>
+<table>
+    <thead>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>user</td><td>ObjectId</td><td>Post author (required)</td></tr>
+        <tr><td>image</td><td>String</td><td>Cloudinary URL (required)</td></tr>
+        <tr><td>caption</td><td>String</td><td>Max 2200 characters</td></tr>
+        <tr><td>likes</td><td>[ObjectId]</td><td>Users who liked</td></tr>
+        <tr><td>comments</td><td>Array</td><td>{user, username, text, createdAt}</td></tr>
+        <tr><td>hashtags</td><td>[String]</td><td>Auto-extracted from caption</td></tr>
+        <tr><td>location</td><td>String</td><td>Optional location</td></tr>
+        <tr><td>isArchived</td><td>Boolean</td><td>Hidden from feeds</td></tr>
+    </tbody>
+</table>
+
+<h3>Story Model</h3>
+<table>
+    <thead>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>user</td><td>ObjectId</td><td>Story owner</td></tr>
+        <tr><td>media</td><td>String</td><td>Image/Video URL</td></tr>
+        <tr><td>mediaType</td><td>Enum</td><td>'image', 'video'</td></tr>
+        <tr><td>stickers</td><td>Array</td><td>Interactive elements</td></tr>
+        <tr><td>poll</td><td>Object</td><td>Question + options + votes</td></tr>
+        <tr><td>views</td><td>Array</td><td>{user, viewedAt}</td></tr>
+        <tr><td>reactions</td><td>Array</td><td>{user, emoji}</td></tr>
+        <tr><td>closeFriendsOnly</td><td>Boolean</td><td>Privacy setting</td></tr>
+        <tr><td>expiresAt</td><td>Date</td><td>TTL index (24 hours)</td></tr>
+    </tbody>
+</table>
+
+<h3>Message Model</h3>
+<table>
+    <thead>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>participants</td><td>[ObjectId]</td><td>Users in conversation</td></tr>
+        <tr><td>messages</td><td>Array</td><td>{sender, content, type, readBy}</td></tr>
+        <tr><td>lastMessage</td><td>Object</td><td>Preview for inbox</td></tr>
+        <tr><td>isGroupChat</td><td>Boolean</td><td>Group chat flag</td></tr>
+    </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2 id="api">6. API Endpoints</h2>
+
+<h3>Authentication Routes</h3>
+<table>
+    <thead>
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/register</td><td>Registration page</td><td>❌</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/register</td><td>Create new account</td><td>❌</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/login</td><td>Login page</td><td>❌</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/login</td><td>Authenticate user</td><td>❌</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/logout</td><td>Clear session</td><td>✅</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/forgot-password</td><td>Send reset token</td><td>❌</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/reset-password/:token</td><td>Update password</td><td>❌</td></tr>
+    </tbody>
+</table>
+
+<h3>User Routes</h3>
+<table>
+    <thead>
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/user/:id</td><td>View user profile</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/user/:id/followers</td><td>Followers list</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/user/:id/following</td><td>Following list</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/user/:id/follow</td><td>Toggle follow</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/user/:id/block</td><td>Block user</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/search</td><td>Search users</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/search/all</td><td>Search all (users, posts, hashtags)</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/suggested</td><td>Suggested users</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/activity</td><td>Login history</td></tr>
+    </tbody>
+</table>
+
+<h3>Post Routes</h3>
+<table>
+    <thead>
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/</td><td>Home feed</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/api/posts</td><td>Posts API (paginated)</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/explore</td><td>Explore page</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/hashtag/:tag</td><td>Posts by hashtag</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/post</td><td>Create post</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/post/:id</td><td>View single post</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/post/:id/edit</td><td>Update post</td></tr>
+        <tr><td><span class="badge badge-delete">DELETE</span></td><td>/post/:id/delete</td><td>Delete post</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/post/:id/like</td><td>Toggle like</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/post/:id/comment</td><td>Add comment</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/post/:id/save</td><td>Toggle bookmark</td></tr>
+    </tbody>
+</table>
+
+<h3>Story Routes</h3>
+<table>
+    <thead>
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/stories</td><td>Stories feed</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/stories</td><td>Create story</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/stories/:id</td><td>View story</td></tr>
+        <tr><td><span class="badge badge-delete">DELETE</span></td><td>/stories/:id</td><td>Delete story</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/stories/:id/react</td><td>React with emoji</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/stories/:id/poll/:option</td><td>Vote on poll</td></tr>
+    </tbody>
+</table>
+
+<h3>Message Routes</h3>
+<table>
+    <thead>
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/messages</td><td>Inbox</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/messages/conversation/:userId</td><td>Get/create conversation</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/messages/send/:conversationId</td><td>Send message</td></tr>
+        <tr><td><span class="badge badge-delete">DELETE</span></td><td>/messages/message/:id/:index</td><td>Delete message</td></tr>
+    </tbody>
+</table>
+
+<h3>Admin Routes (Admin/Moderator Only)</h3>
+<table>
+    <thead>
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/admin</td><td>Admin dashboard</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/admin/users</td><td>User management</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/admin/posts</td><td>Post management</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/admin/analytics</td><td>Analytics</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td>/admin/verifications</td><td>Verification requests</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/admin/user/:id/ban</td><td>Ban/unban user</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td>/admin/user/:id/verify</td><td>Grant/revoke verification</td></tr>
+        <tr><td><span class="badge badge-delete">DELETE</span></td><td>/admin/user/:id</td><td>Delete user</td></tr>
+    </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2 id="frontend">7. Frontend Pages</h2>
+
+<h3>Public Pages</h3>
+<table>
+    <thead>
+        <tr><th>Page</th><th>File</th><th>Route</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Login</td><td>login.ejs</td><td>/login</td><td>User authentication</td></tr>
+        <tr><td>Register</td><td>register.ejs</td><td>/register</td><td>Account creation</td></tr>
+        <tr><td>Forgot Password</td><td>forgot-password.ejs</td><td>/forgot-password</td><td>Reset request</td></tr>
+    </tbody>
+</table>
+
+<h3>User Pages</h3>
+<table>
+    <thead>
+        <tr><th>Page</th><th>File</th><th>Route</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Home Feed</td><td>index.ejs</td><td>/</td><td>Main feed with posts</td></tr>
+        <tr><td>Profile</td><td>profile.ejs</td><td>/user/:id</td><td>User profile with post grid</td></tr>
+        <tr><td>Settings</td><td>settings.ejs</td><td>/settings</td><td>Account settings (5 tabs)</td></tr>
+        <tr><td>Search</td><td>search.ejs</td><td>/search</td><td>User search</td></tr>
+        <tr><td>Suggested</td><td>suggested.ejs</td><td>/suggested</td><td>Suggested users</td></tr>
+        <tr><td>Activity</td><td>activity.ejs</td><td>/activity</td><td>Login history</td></tr>
+    </tbody>
+</table>
+
+<h3>Content Pages</h3>
+<table>
+    <thead>
+        <tr><th>Page</th><th>File</th><th>Route</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>New Post</td><td>newpost.ejs</td><td>/post/new</td><td>Create post form</td></tr>
+        <tr><td>View Post</td><td>viewpost.ejs</td><td>/post/:id</td><td>Single post view</td></tr>
+        <tr><td>Edit Post</td><td>editpost.ejs</td><td>/post/:id/edit</td><td>Edit post form</td></tr>
+        <tr><td>Saved Posts</td><td>saved.ejs</td><td>/saved</td><td>Bookmarked posts</td></tr>
+        <tr><td>Explore</td><td>explore.ejs</td><td>/explore</td><td>Discover content</td></tr>
+        <tr><td>Hashtag</td><td>hashtag.ejs</td><td>/hashtag/:tag</td><td>Posts by hashtag</td></tr>
+    </tbody>
+</table>
+
+<h3>Admin Pages</h3>
+<table>
+    <thead>
+        <tr><th>Page</th><th>File</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Dashboard</td><td>admin/dashboard.ejs</td><td>Overview & stats</td></tr>
+        <tr><td>Users</td><td>admin/users.ejs</td><td>User management</td></tr>
+        <tr><td>Posts</td><td>admin/posts.ejs</td><td>Post management</td></tr>
+        <tr><td>Reports</td><td>admin/reports.ejs</td><td>Report management</td></tr>
+        <tr><td>Analytics</td><td>admin/analytics.ejs</td><td>Charts & graphs</td></tr>
+        <tr><td>Verifications</td><td>admin/verifications.ejs</td><td>Badge requests</td></tr>
+    </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2 id="uploads">8. File Upload System</h2>
+
+<div class="diagram">
+┌─────────────┐     multipart/form-data     ┌──────────────┐
+│   Browser   │ ─────────────────────────▶ │    Express   │
+│  (Form)     │                             │   (Multer)   │
+└─────────────┘                             └──────┬───────┘
+                                                   │
+                                           Buffer in memory
+                                                   │
+                                                   ▼
+                                           ┌──────────────┐
+                                           │  uploadImage │
+                                           │  (cloudinary)│
+                                           └──────┬───────┘
+                                                  │
+                                                  ▼
+                                           ┌──────────────┐
+                                           │  Cloudinary  │
+                                           │    CDN       │
+                                           └──────┬───────┘
+                                                  │
+                                           Returns secure_url
+                                                  │
+                                                  ▼
+                                           ┌──────────────┐
+                                           │   MongoDB    │
+                                           │ (store URL)  │
+                                           └──────────────┘
+</div>
+
+<h3>Cloudinary Upload Implementation:</h3>
+<pre><code>// utils/cloudinary.js
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const uploadImage = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: 'mini-insta' },
+      (error, result) => {
+        if (error) reject(error);
+        resolve(result);
+      }
+    );
+    uploadStream.end(fileBuffer);
+  });
+};
+
+module.exports = { uploadImage, cloudinary };
+</code></pre>
+
+<h3>Supported Uploads:</h3>
+<ul>
+    <li><strong>Avatars:</strong> User profile pictures</li>
+    <li><strong>Posts:</strong> Photo posts (main feature)</li>
+    <li><strong>Stories:</strong> Story images/videos</li>
+    <li><strong>ID Documents:</strong> Verification request uploads</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2 id="features">9. Key Features</h2>
+
+<div class="feature-grid">
+    <div class="feature-card">
+        <h4>👤 User Management</h4>
+        <ul>
+            <li>Registration with avatar upload</li>
+            <li>Login with password hashing</li>
+            <li>Profile customization</li>
+            <li>Private/public accounts</li>
+            <li>Follow/unfollow users</li>
+            <li>Block/unblock users</li>
+            <li>Password reset</li>
+            <li>Account deletion</li>
+        </ul>
+    </div>
+    
+    <div class="feature-card">
+        <h4>📸 Content Features</h4>
+        <ul>
+            <li>Photo posts with captions</li>
+            <li>Auto hashtag extraction</li>
+            <li>Like/unlike posts</li>
+            <li>Comments on posts</li>
+            <li>Post bookmarking</li>
+            <li>Post editing/deletion</li>
+            <li>Explore page</li>
+            <li>Hashtag pages</li>
+        </ul>
+    </div>
+    
+    <div class="feature-card">
+        <h4>📱 Stories</h4>
+        <ul>
+            <li>24-hour expiring stories</li>
+            <li>Interactive stickers</li>
+            <li>Poll voting</li>
+            <li>Question stickers</li>
+            <li>Story reactions</li>
+            <li>Close friends only</li>
+            <li>Story highlights</li>
+        </ul>
+    </div>
+    
+    <div class="feature-card">
+        <h4>💬 Messaging & Notifications</h4>
+        <ul>
+            <li>Direct messages (1-on-1)</li>
+            <li>Conversation inbox</li>
+            <li>Message read receipts</li>
+            <li>Like/comment notifications</li>
+            <li>Follow notifications</li>
+            <li>Notification preferences</li>
+        </ul>
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<h2 id="security">10. Security Features</h2>
+
+<table>
+    <thead>
+        <tr><th>Feature</th><th>Implementation</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Password Hashing</strong></td><td>bcryptjs with 12 salt rounds</td></tr>
+        <tr><td><strong>JWT Tokens</strong></td><td>HTTP-only cookies, 7-day expiry</td></tr>
+        <tr><td><strong>HTTPS Headers</strong></td><td>Helmet.js middleware</td></tr>
+        <tr><td><strong>Rate Limiting</strong></td><td>100 requests per 15 minutes</td></tr>
+        <tr><td><strong>Input Validation</strong></td><td>express-validator</td></tr>
+        <tr><td><strong>CSRF Protection</strong></td><td>sameSite cookie flag</td></tr>
+        <tr><td><strong>XSS Prevention</strong></td><td>HTTP-only cookies, EJS escaping</td></tr>
+        <tr><td><strong>Account Banning</strong></td><td>Admin can ban/shadow-ban users</td></tr>
+        <tr><td><strong>Login Tracking</strong></td><td>IP and device logging</td></tr>
+        <tr><td><strong>Password Reset</strong></td><td>SHA256 hashed tokens, 1-hour expiry</td></tr>
+    </tbody>
+</table>
+
+<h2 id="admin">11. Admin Panel</h2>
+
+<h3>Dashboard Overview</h3>
+<ul>
+    <li>Total users, posts, likes, comments</li>
+    <li>New users/posts this week</li>
+    <li>Top users by followers</li>
+    <li>Posts per day chart</li>
+</ul>
+
+<h3>Management Features</h3>
+<ul>
+    <li><strong>User Management:</strong> Search, filter, ban/unban, verify, delete</li>
+    <li><strong>Post Management:</strong> Search, filter, archive/restore, delete</li>
+    <li><strong>Report Management:</strong> View, review, take action</li>
+    <li><strong>Verification Requests:</strong> Review, approve/reject with reason</li>
+    <li><strong>Analytics:</strong> User/post trends, engagement metrics</li>
+</ul>
+
+<hr style="margin-top: 60px;">
+
+<div style="text-align: center; color: #8e8e8e; margin-top: 30px;">
+    <p><strong>Blogs - Mini Instagram Clone</strong></p>
+    <p>Full Stack Social Media Application</p>
+    <p>Node.js | Express.js | MongoDB | EJS | JWT</p>
+    <p style="margin-top: 20px;">Documentation generated on February 27, 2026</p>
+</div>
+
+</body>
+</html>

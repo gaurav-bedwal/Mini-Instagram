@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Post Details - Blogs</title>
+    <%- include('partials/common-styles') %>
+        <style>
+            .view-container {
+                display: flex;
+                max-width: 935px;
+                margin: 40px auto;
+                background: #fff;
+                border: 1px solid #dbdbdb;
+                height: 600px;
+                border-radius: 4px;
+                overflow: hidden;
+            }
+
+            .image-side {
+                flex: 1.5;
+                background: #000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+
+            .image-side img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+            .details-side {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                border-left: 1px solid #dbdbdb;
+                min-width: 300px;
+            }
+
+            .header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 16px;
+                border-bottom: 1px solid #dbdbdb;
+            }
+
+            .header img {
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                object-fit: cover;
+            }
+
+            .comments-section {
+                flex: 1;
+                overflow-y: auto;
+                padding: 16px;
+            }
+
+            .comment {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 16px;
+                align-items: flex-start;
+            }
+
+            .comment img {
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                flex-shrink: 0;
+                object-fit: cover;
+            }
+
+            .comment-text {
+                font-size: 14px;
+                margin: 0;
+            }
+
+            .actions {
+                padding: 16px;
+                border-top: 1px solid #dbdbdb;
+            }
+
+            .comment-form {
+                padding: 16px;
+                border-top: 1px solid #dbdbdb;
+                display: flex;
+                gap: 10px;
+            }
+
+            .comment-form input {
+                flex: 1;
+                border: none;
+                outline: none;
+                font-size: 14px;
+                background: transparent;
+            }
+
+            .comment-form button {
+                border: none;
+                background: none;
+                color: #0095f6;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            @media (max-width: 768px) {
+                .view-container {
+                    flex-direction: column;
+                    height: auto;
+                    margin: 0;
+                    border: none;
+                    max-width: 100vw;
+                }
+
+                .image-side {
+                    aspect-ratio: 1/1;
+                    flex: none;
+                }
+
+                .details-side {
+                    flex: none;
+                    border-left: none;
+                }
+
+                .comments-section {
+                    max-height: 400px;
+                }
+            }
+
+            /* Dark Mode Updates */
+            body.dark-mode .view-container,
+            body.dark-mode .header,
+            body.dark-mode .actions,
+            body.dark-mode .comment-form {
+                background-color: #121212 !important;
+                border-color: #333 !important;
+            }
+
+            body.dark-mode .details-side {
+                border-left-color: #333 !important;
+            }
+
+            body.dark-mode .header strong {
+                color: #fff !important;
+            }
+        </style>
+</head>
+
+<body>
+    <%- include('partials/sidebar') %>
+        <%- include('partials/modal') %>
+            <%- include('partials/mobile-nav') %>
+
+                <div class="main-content">
+                    <%- include('partials/top-nav') %>
+
+                        <div class="view-container">
+                            <!-- Left: Image -->
+                            <div class="image-side">
+                                <% if (post.mediaType==='video' ) { %>
+                                    <video src="<%= post.image %>" controls loop autoplay
+                                        style="object-fit: cover; width: 100%; height: 100%;"></video>
+                                    <% } else { %>
+                                        <img src="<%= post.image %>" alt="Post Image">
+                                        <% } %>
+                            </div>
+
+                            <!-- Right: Details -->
+                            <div class="details-side">
+                                <div class="header" style="justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <% if (post.user && post.user.avatar) { %>
+                                            <img src="<%= post.user.avatar %>">
+                                            <% } else { %>
+                                                <div
+                                                    style="width:32px; height:32px; background:#ccc; border-radius:50%">
+                                                </div>
+                                                <% } %>
+                                                    <strong>
+                                                        <%= post.user ? post.user.username : 'Unknown' %>
+                                                    </strong>
+                                    </div>
+
+                                    <% if (post.user && user && post.user._id.toString()===user._id.toString()) { %>
+                                        <div style="position: relative;">
+                                            <div class="menu-dot" onclick="toggleMenu('view-menu-<%= post._id %>')">
+                                                <svg aria-label="More options" color="currentColor" fill="currentColor"
+                                                    height="24" role="img" viewBox="0 0 24 24" width="24">
+                                                    <circle cx="12" cy="12" r="1.5"></circle>
+                                                    <circle cx="6" cy="12" r="1.5"></circle>
+                                                    <circle cx="18" cy="12" r="1.5"></circle>
+                                                </svg>
+                                            </div>
+                                            <div id="view-menu-<%= post._id %>" class="dropdown-menu">
+                                                <a href="/post/<%= post._id %>/edit">Edit</a>
+                                                <form method="POST" action="/post/<%= post._id %>/delete"
+                                                    style="margin: 0;">
+                                                    <button type="submit" class="delete-btn"
+                                                        style="color: #ed4956; font-weight: 600; width: 100%; text-align: left; padding: 12px 16px; background: none; border: none; cursor: pointer; font-size: 14px;">Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                                </div>
+
+                                <div class="comments-section">
+                                    <!-- Caption as first comment -->
+                                    <div class="comment">
+                                        <% if (post.user && post.user.avatar) { %>
+                                            <img src="<%= post.user.avatar %>">
+                                            <% } %>
+                                                <div class="comment-text">
+                                                    <% if (post.title) { %>
+                                                        <h3 style="margin: 0 0 5px 0; font-size: 16px;">
+                                                            <%= post.title %>
+                                                        </h3>
+                                                        <% } %>
+                                                            <%= post.caption %>
+                                                </div>
+                                    </div>
+
+                                    <!-- Actual Comments -->
+                                    <% post.comments.forEach(c=> { %>
+                                        <div class="comment">
+                                            <% if (c.avatar) { %>
+                                                <img src="<%= c.avatar %>">
+                                                <% } else { %>
+                                                    <div
+                                                        style="width:32px; height:32px; background:#ccc; border-radius:50%">
+                                                    </div>
+                                                    <% } %>
+                                                        <p class="comment-text">
+                                                            <b>
+                                                                <%= c.username %>
+                                                            </b>
+                                                            <%= c.text %>
+                                                        </p>
+                                        </div>
+                                        <% }) %>
+                                </div>
+
+                                <div class="actions"
+                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                    <form method="POST" action="/post/<%= post._id %>/like" style="margin:0;">
+                                        <% const isLiked=post.likes && user && post.likes.includes(user._id.toString());
+                                            %>
+                                            <button type="submit"
+                                                style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                                <svg aria-label="Like" height="24" viewBox="0 0 24 24" width="24"
+                                                    fill="<%= isLiked ? '#ed4956' : 'none' %>"
+                                                    stroke="<%= isLiked ? '#ed4956' : 'currentColor' %>">
+                                                    <path
+                                                        d="M16.792 3.904A4.989 4.989 0 0121.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.077 2.5 12.194 2.5 9.122a4.989 4.989 0 014.708-5.218 4.21 4.21 0 013.675 1.941c.325.487.568 1.05.617 1.649.034.417.433.417.467 0a4.213 4.213 0 013.675-1.941 4.213 4.213 0 013.15 1.353z"
+                                                        stroke-width="2"></path>
+                                                </svg>
+                                                <strong style="font-size: 14px;">
+                                                    <%= post.likes ? post.likes.length : 0 %> likes
+                                                </strong>
+                                            </button>
+                                    </form>
+                                    <button type="button" class="action-btn save-btn <%= isSaved ? 'saved' : '' %>"
+                                        onclick="savePost('<%= post._id %>', this)"
+                                        style="background: none; border: none; padding: 0; cursor: pointer; color: inherit;">
+                                        <svg aria-label="Save" height="24" viewBox="0 0 24 24" width="24"
+                                            fill="<%= isSaved ? 'currentColor' : 'none' %>" stroke="currentColor"
+                                            stroke-width="2">
+                                            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="comment-form">
+                                    <form method="POST" action="/post/<%= post._id %>/comment"
+                                        style="display:flex; width:100%;">
+                                        <input type="text" name="comment" placeholder="Add a comment..." required>
+                                        <button type="submit">Post</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                <%- include('partials/scripts') %>
+</body>
+
+</html>

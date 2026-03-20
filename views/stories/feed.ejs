@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stories - Blogs</title>
+  <%- include('../partials/common-styles') %>
+  <style>
+    .stories-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .stories-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .stories-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .add-story-btn {
+      padding: 10px 20px;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .stories-row {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .story-circle {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+    .story-avatar-wrapper {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    }
+    .story-avatar-wrapper.viewed {
+      background: #dbdbdb;
+    }
+    .story-avatar-wrapper.add-new {
+      background: #0095f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .story-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--bg-color, white);
+    }
+    .story-username {
+      font-size: 12px;
+      max-width: 70px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .empty-stories {
+      text-align: center;
+      padding: 60px 20px;
+      color: #8e8e8e;
+    }
+    .my-stories-section {
+      margin-bottom: 32px;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #8e8e8e;
+    }
+    .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #efefef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #8e8e8e;
+      border: 3px solid var(--bg-color, white);
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar') %>
+  <%- include('../partials/mobile-nav') %>
+
+  <div class="main-content">
+    <%- include('../partials/top-nav') %>
+    
+    <div class="stories-container">
+      <div class="stories-header">
+        <h2>Stories</h2>
+        <a href="/stories/new" class="add-story-btn">+ Add Story</a>
+      </div>
+
+      <% if (storyGroups.length === 0) { %>
+        <div class="empty-stories">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:16px;opacity:0.5;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <h3>No stories yet</h3>
+          <p>Stories from people you follow will appear here.</p>
+          <a href="/stories/new" class="add-story-btn" style="margin-top:20px;">Create Your Story</a>
+        </div>
+      <% } else { %>
+        <div class="stories-row">
+          <!-- Add your story -->
+          <a href="/stories/new" class="story-circle">
+            <div class="story-avatar-wrapper add-new">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
+                <path d="M12 5v14M5 12h14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="story-username">Your Story</span>
+          </a>
+          
+          <% storyGroups.forEach(group => { %>
+            <a href="/stories/<%= group.stories[0]._id %>" class="story-circle">
+              <div class="story-avatar-wrapper <%= !group.hasUnviewed ? 'viewed' : '' %>">
+                <% if (group.user.avatar) { %>
+                  <img src="<%= group.user.avatar %>" class="story-avatar" alt="<%= group.user.username %>">
+                <% } else { %>
+                  <div class="avatar-placeholder"><%= group.user.username.charAt(0).toUpperCase() %></div>
+                <% } %>
+              </div>
+              <span class="story-username"><%= group.user.username %></span>
+            </a>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('../partials/scripts') %>
+</body>
+</html>

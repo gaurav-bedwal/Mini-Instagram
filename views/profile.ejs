@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>
+    <%= profileUser.username %> (@<%= profileUser.username %>) • Blogs
+  </title>
+  <%- include('partials/common-styles') %>
+    <style>
+      .profile-container {
+        max-width: 935px;
+        margin: 30px auto;
+        padding: 0 20px;
+      }
+
+      .profile-header {
+        display: flex;
+        margin-bottom: 44px;
+        align-items: flex-start;
+      }
+
+      .avatar-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        margin-right: 30px;
+      }
+
+      .avatar-container img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 1px solid #dbdbdb;
+        padding: 2px;
+        object-fit: cover;
+      }
+
+      .profile-info {
+        flex: 2;
+      }
+
+      .profile-top {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .profile-username {
+        font-size: 28px;
+        font-weight: 300;
+        margin: 0;
+      }
+
+      .edit-profile-btn {
+        text-decoration: none;
+        color: #262626;
+        border: 1px solid #dbdbdb;
+        padding: 5px 9px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .profile-stats {
+        display: flex;
+        gap: 40px;
+        margin-bottom: 20px;
+        list-style: none;
+        padding: 0;
+      }
+
+      .profile-stats li {
+        font-size: 16px;
+      }
+
+      .profile-stats b {
+        font-weight: 600;
+      }
+
+      .profile-bio {
+        font-size: 16px;
+        line-height: 24px;
+      }
+
+      .profile-name {
+        font-weight: 600;
+        display: block;
+      }
+
+      .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        border-top: 1px solid #dbdbdb;
+        padding-top: 50px;
+      }
+
+      .grid-item {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background: #efefef;
+      }
+
+      .grid-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 0.3s;
+      }
+
+      .grid-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+      }
+
+      .grid-item:hover .grid-overlay {
+        opacity: 1;
+      }
+
+      .grid-item:hover img {
+        opacity: 0.8;
+      }
+
+      @media (max-width: 768px) {
+        .profile-header {
+          flex-direction: row;
+          /* Keep row but smaller */
+          align-items: center;
+          margin-bottom: 20px;
+        }
+
+        .avatar-container {
+          margin-right: 20px;
+          flex: none;
+        }
+
+        .avatar-container img {
+          width: 77px;
+          height: 77px;
+        }
+
+        .profile-top {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+
+        .profile-username {
+          font-size: 20px;
+        }
+
+        .profile-stats {
+          display: flex;
+          justify-content: space-around;
+          width: 100vw;
+          margin-left: -20px;
+          border-top: 1px solid #dbdbdb;
+          border-bottom: 1px solid #dbdbdb;
+          padding: 10px 0;
+          gap: 0;
+        }
+
+        .profile-stats li {
+          text-align: center;
+          font-size: 14px;
+          color: #8e8e8e;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .profile-stats b {
+          color: #262626;
+        }
+
+        body.dark-mode .profile-stats b {
+          color: #fff;
+        }
+
+        .posts-grid {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 3px;
+          padding-top: 10px;
+        }
+      }
+
+      /* Dark Mode Updates */
+      body.dark-mode .edit-profile-btn {
+        background-color: #121212 !important;
+        border-color: #333 !important;
+        color: #e0e0e0 !important;
+      }
+
+      body.dark-mode .profile-username {
+        color: #fff !important;
+      }
+
+      body.dark-mode .posts-grid,
+      body.dark-mode .profile-stats {
+        border-top-color: #333 !important;
+        border-bottom-color: #333 !important;
+      }
+    </style>
+</head>
+
+<body>
+  <%- include('partials/sidebar') %>
+    <%- include('partials/modal') %>
+      <%- include('partials/mobile-nav') %>
+
+        <div class="main-content">
+          <%- include('partials/top-nav') %>
+
+
+            <div class="profile-container">
+              <div class="profile-header">
+                <div class="avatar-container">
+                  <% if (profileUser.avatar) { %>
+                    <img src="<%= profileUser.avatar %>" alt="profile photo">
+                    <% } else { %>
+                      <div
+                        style="width: 150px; height: 150px; border-radius: 50%; background: #efefef; display: flex; align-items: center; justify-content: center; font-size: 48px; color: #8e8e8e;">
+                        <%= profileUser.username.charAt(0).toUpperCase() %>
+                      </div>
+                      <% } %>
+                </div>
+
+                <div class="profile-info">
+                  <div class="profile-top">
+                    <h2 class="profile-username">
+                      <%= profileUser.username %>
+                        <% if (profileUser.isVerified) { %>
+                          <svg aria-label="Verified" fill="#0095f6" height="18" viewBox="0 0 24 24" width="18"
+                            style="vertical-align: middle;">
+                            <path
+                              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z">
+                            </path>
+                          </svg>
+                          <% } %>
+                    </h2>
+                    <% if (isOwnProfile) { %>
+                      <a href="/settings" class="edit-profile-btn">Edit Profile</a>
+                      <% } else { %>
+                        <button type="button" class="follow-btn <%= isFollowing ? 'secondary' : 'primary' %>"
+                          onclick="toggleFollow('<%= profileUser._id %>', this)" data-following="<%= isFollowing %>">
+                          <%= isFollowing ? 'Following' : 'Follow' %>
+                        </button>
+                        <a href="/messages/conversation/<%= profileUser._id %>" class="edit-profile-btn"
+                          style="margin-left: 10px;">Message</a>
+                        <% } %>
+                  </div>
+
+                  <ul class="profile-stats hide-mobile">
+                    <li><b>
+                        <%= posts.length %>
+                      </b> posts</li>
+                    <li>
+                      <a href="/user/<%= profileUser._id %>/followers" style="text-decoration: none; color: inherit;">
+                        <b>
+                          <%= followersCount %>
+                        </b> followers
+                      </a>
+                    </li>
+                    <li>
+                      <a href="/user/<%= profileUser._id %>/following" style="text-decoration: none; color: inherit;">
+                        <b>
+                          <%= followingCount %>
+                        </b> following
+                      </a>
+                    </li>
+                  </ul>
+
+                  <div class="profile-bio">
+                    <span class="profile-name">
+                      <%= profileUser.name || profileUser.username %>
+                    </span>
+                    <p style="margin: 5px 0; white-space: pre-line;">
+                      <%= profileUser.bio || 'No bio yet.' %>
+                    </p>
+                    <% if (isOwnProfile) { %>
+                      <span style="color: #8e8e8e; font-size: 12px;">Email: <%= profileUser.email %></span>
+                      <% } %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mobile Stats -->
+              <ul class="profile-stats show-mobile" style="display: none;">
+                <li><b>
+                    <%= posts.length %>
+                  </b> <span>posts</span></li>
+                <li>
+                  <a href="/user/<%= profileUser._id %>/followers" style="text-decoration: none; color: inherit;">
+                    <b>
+                      <%= followersCount %>
+                    </b> <span>followers</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/user/<%= profileUser._id %>/following" style="text-decoration: none; color: inherit;">
+                    <b>
+                      <%= followingCount %>
+                    </b> <span>following</span>
+                  </a>
+                </li>
+              </ul>
+              <style>
+                @media (max-width: 768px) {
+                  .hide-mobile {
+                    display: none !important;
+                  }
+
+                  .show-mobile {
+                    display: flex !important;
+                  }
+                }
+
+                .private-notice {
+                  text-align: center;
+                  padding: 60px 20px;
+                  border-top: 1px solid #dbdbdb;
+                }
+
+                .private-notice svg {
+                  margin-bottom: 16px;
+                }
+
+                .private-notice h3 {
+                  font-size: 14px;
+                  font-weight: 600;
+                  margin: 0 0 8px;
+                }
+
+                .private-notice p {
+                  color: #8e8e8e;
+                  font-size: 14px;
+                  margin: 0;
+                }
+
+                body.dark-mode .private-notice {
+                  border-top-color: #363636;
+                }
+              </style>
+
+              <% const canViewPosts=isOwnProfile || !profileUser.isPrivate || isFollowing; %>
+
+                <% if (canViewPosts) { %>
+                  <div class="posts-grid">
+                    <% if (posts.length===0) { %>
+                      <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #8e8e8e;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                          style="margin-bottom: 16px;">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                          <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <h3 style="font-weight: 600; margin: 0 0 8px; color: inherit;">No Posts Yet</h3>
+                        <p style="margin: 0;">
+                          <%= isOwnProfile ? 'Share your first photo!' : 'This user hasn\' t posted anything yet.' %>
+                        </p>
+                      </div>
+                      <% } else { %>
+                        <% posts.forEach(post=> { %>
+                          <a href="/post/<%= post._id %>" class="grid-item">
+                            <% if (post.mediaType==='video' ) { %>
+                              <video src="<%= post.image %>" class="explore-img" loading="lazy" muted loop autoplay
+                                style="object-fit: cover; width: 100%; height: 100%;"></video>
+                              <% } else { %>
+                                <img src="<%= post.image %>" alt="post image">
+                                <% } %>
+                                  <div class="grid-overlay">
+                                    <span>❤️ <%= post.likes.length %> 💬 <%= post.comments.length %></span>
+                                  </div>
+                          </a>
+                          <% }) %>
+                            <% } %>
+                  </div>
+                  <% } else { %>
+                    <div class="private-notice">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                      <h3>This Account is Private</h3>
+                      <p>Follow this account to see their photos and videos.</p>
+                    </div>
+                    <% } %>
+            </div>
+        </div>
+        <%- include('partials/scripts') %>
+</body>
+
+</html>

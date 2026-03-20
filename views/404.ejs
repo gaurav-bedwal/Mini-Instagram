@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Page Not Found - Blogs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #fafafa;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .error-container {
+      max-width: 400px;
+    }
+
+    h1 {
+      font-size: 96px;
+      margin: 0;
+      color: #262626;
+      font-weight: 300;
+    }
+
+    h2 {
+      margin: 20px 0;
+      font-size: 24px;
+      font-weight: 400;
+    }
+
+    p {
+      color: #8e8e8e;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #0095f6;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #1877f2;
+    }
+
+    /* Dark Mode */
+    body.dark-mode {
+      background-color: #000;
+    }
+
+    body.dark-mode h1,
+    body.dark-mode h2 {
+      color: #f0f0f0;
+    }
+
+    body.dark-mode p {
+      color: #8e8e8e;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="error-container">
+    <h1>404</h1>
+    <h2>Page Not Found</h2>
+    <p>The page you're looking for doesn't exist or has been moved.</p>
+    <a href="/" class="btn">Go Home</a>
+  </div>
+
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+  </script>
+</body>
+
+</html>

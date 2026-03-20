@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Post - Blogs</title>
+  <%- include('partials/common-styles') %>
+    <style>
+      .edit-container {
+        background: #fff;
+        border: 1px solid #dbdbdb;
+        border-radius: 12px;
+        padding: 40px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin: 40px auto;
+      }
+
+      h2 {
+        margin-top: 0;
+        font-size: 24px;
+        text-align: left;
+        margin-bottom: 30px;
+        color: #262626;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #8e8e8e;
+      }
+
+      input[type="text"],
+      textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+        font-size: 14px;
+        background: #fafafa;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+      }
+
+      input:focus,
+      textarea:focus {
+        border-color: #a8a8a8;
+        outline: none;
+      }
+
+      .image-preview-container {
+        margin: 20px 0;
+        text-align: center;
+        position: relative;
+      }
+
+      #preview {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 8px;
+        border: 1px solid #dbdbdb;
+        display: block;
+        margin: 0 auto;
+      }
+
+      .file-input-wrapper {
+        margin-top: 15px;
+      }
+
+      .submit-btn {
+        width: 100%;
+        background-color: #0095f6;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background 0.2s;
+      }
+
+      .submit-btn:hover {
+        background-color: #1877f2;
+      }
+
+      .cancel-link {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        color: #8e8e8e;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      /* Dark Mode Support */
+      body.dark-mode .edit-container {
+        background: #121212;
+        border-color: #333;
+      }
+
+      body.dark-mode h2 {
+        color: #fff;
+      }
+
+      body.dark-mode input,
+      body.dark-mode textarea {
+        background: #262626;
+        border-color: #333;
+        color: #fff;
+      }
+
+      body.dark-mode #preview {
+        border-color: #333;
+      }
+    </style>
+</head>
+
+<body>
+  <!-- Sidebar and Modals are part of the layout -->
+  <%- include('partials/sidebar') %>
+
+    <div class="main-content">
+      <%- include('partials/top-nav') %>
+
+        <div class="edit-container">
+          <h2>Edit Post</h2>
+          <% if (typeof error !=='undefined' ) { %>
+            <p style="color:#ed4956; font-size:14px; margin-bottom:15px;">
+              <%= error %>
+            </p>
+            <% } %>
+
+              <form method="POST" action="/post/<%= post._id %>/edit" enctype="multipart/form-data">
+                <div class="form-group">
+                  <label>Update Caption</label>
+                  <textarea name="caption" rows="4" placeholder="Write a caption..."><%= post.caption %></textarea>
+                </div>
+
+                <div class="image-preview-container">
+                  <label style="text-align: left;">Current Image</label>
+                  <% if (post.image) { %>
+                    <img id="preview" src="<%= post.image %>" />
+                    <% } else { %>
+                      <img id="preview" style="display:none;" />
+                      <% } %>
+                </div>
+
+                <div class="form-group file-input-wrapper">
+                  <label>Change Photo</label>
+                  <input type="file" name="image" accept="image/*" onchange="previewImage(event)">
+                </div>
+
+                <button type="submit" class="submit-btn">Update Post</button>
+                <a href="/post/<%= post._id %>" class="cancel-link">Cancel</a>
+              </form>
+        </div>
+    </div>
+
+    <script>
+      function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const img = document.getElementById('preview');
+            img.src = e.target.result;
+            img.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('.main-content');
+        sidebar.classList.toggle('expanded');
+
+        if (sidebar.classList.contains('expanded')) {
+          mainContent.style.marginLeft = '245px';
+        } else {
+          mainContent.style.marginLeft = '73px';
+        }
+      }
+
+      function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      }
+
+      if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+      }
+    </script>
+</body>
+
+</html>

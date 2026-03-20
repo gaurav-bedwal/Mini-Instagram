@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>
+    <%= hashtag ? '#' + hashtag : 'Explore' %> - Blogs
+  </title>
+  <%- include('partials/common-styles') %>
+    <style>
+      .explore-container {
+        max-width: 935px;
+        margin: 30px auto;
+        padding: 0 20px;
+      }
+
+      .explore-header {
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .explore-header h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+
+      .hashtag-label {
+        color: var(--color-primary);
+        font-size: 28px;
+        font-weight: 600;
+      }
+
+      .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+      }
+
+      .grid-item {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background: #efefef;
+        border-radius: var(--radius-sm);
+      }
+
+      .grid-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity var(--transition-fast);
+      }
+
+      .grid-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity var(--transition-fast);
+        color: white;
+        gap: 20px;
+        font-weight: 600;
+      }
+
+      .grid-item:hover .grid-overlay {
+        opacity: 1;
+      }
+
+      .grid-stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .trending-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 30px;
+        justify-content: center;
+      }
+
+      .tag-chip {
+        padding: 8px 16px;
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border);
+        border-radius: 20px;
+        text-decoration: none;
+        color: var(--color-text-primary);
+        font-size: 14px;
+        transition: all var(--transition-fast);
+      }
+
+      .tag-chip:hover {
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+      }
+
+      .no-posts {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--color-text-secondary);
+      }
+
+      @media (max-width: 768px) {
+        .posts-grid {
+          gap: 3px;
+        }
+
+        .explore-container {
+          padding: 0;
+          margin: 0;
+        }
+
+        .explore-header {
+          padding: 20px;
+        }
+      }
+
+      body.dark-mode .tag-chip {
+        background: #262626;
+        border-color: #404040;
+        color: #f0f0f0;
+      }
+    </style>
+</head>
+
+<body>
+  <%- include('partials/sidebar') %>
+    <%- include('partials/modal') %>
+      <%- include('partials/mobile-nav') %>
+
+        <div class="main-content">
+          <%- include('partials/top-nav') %>
+
+            <div class="explore-container">
+              <div class="explore-header">
+                <% if (hashtag) { %>
+                  <span class="hashtag-label">#<%= hashtag %></span>
+                  <p>
+                    <%= posts.length %> posts
+                  </p>
+                  <% } else { %>
+                    <h1>Explore</h1>
+                    <% } %>
+              </div>
+
+              <% if (posts && posts.length> 0) { %>
+                <div class="posts-grid">
+                  <% posts.forEach(post=> { %>
+                    <a href="/post/<%= post._id %>" class="grid-item">
+                      <% if (post.mediaType==='video' ) { %>
+                        <video src="<%= post.image %>" class="explore-img" loading="lazy" muted loop autoplay
+                          style="object-fit: cover; width: 100%; height: 100%;"></video>
+                        <% } else { %>
+                          <img src="<%= post.image %>" alt="Post" loading="lazy">
+                          <% } %>
+                            <div class="grid-overlay">
+                              <span class="grid-stat">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                                  <path
+                                    d="M16.792 3.904A4.989 4.989 0 0121.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.077 2.5 12.194 2.5 9.122a4.989 4.989 0 014.708-5.218 4.21 4.21 0 013.675 1.941c.325.487.568 1.05.617 1.649.034.417.433.417.467 0a4.213 4.213 0 013.675-1.941 4.213 4.213 0 013.15 1.353z">
+                                  </path>
+                                </svg>
+                                <%= post.likes ? post.likes.length : 0 %>
+                              </span>
+                              <span class="grid-stat">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                                  <path d="M20.656 17.008a9.993 9.993 0 10-3.59 3.615L22 22z"></path>
+                                </svg>
+                                <%= post.comments ? post.comments.length : 0 %>
+                              </span>
+                            </div>
+                    </a>
+                    <% }) %>
+                </div>
+                <% } else { %>
+                  <div class="no-posts">
+                    <h3>No posts yet</h3>
+                    <p>Be the first to post with this hashtag!</p>
+                  </div>
+                  <% } %>
+            </div>
+        </div>
+
+        <%- include('partials/scripts') %>
+</body>
+
+</html>

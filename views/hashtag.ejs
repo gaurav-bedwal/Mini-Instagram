@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>#<%= hashtag %> - Blogs</title>
+  <%- include('partials/common-styles') %>
+    <style>
+      .hashtag-container {
+        max-width: 935px;
+        margin: 0 auto;
+        padding: 30px 20px;
+      }
+
+      .hashtag-header {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 44px;
+        padding-bottom: 30px;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .hashtag-icon {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 72px;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .hashtag-info h1 {
+        font-size: 28px;
+        font-weight: 300;
+        margin: 0 0 10px 0;
+      }
+
+      .hashtag-stats {
+        font-size: 16px;
+        color: var(--color-text-secondary);
+      }
+
+      .hashtag-stats b {
+        color: var(--color-text-primary);
+        font-weight: 600;
+      }
+
+      .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+      }
+
+      .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+      }
+
+      .grid-item {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        border-radius: 4px;
+        background: #efefef;
+      }
+
+      .grid-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 0.3s;
+      }
+
+      .grid-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        gap: 20px;
+      }
+
+      .grid-item:hover .grid-overlay {
+        opacity: 1;
+      }
+
+      .no-posts {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--color-text-secondary);
+      }
+
+      .no-posts svg {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 16px;
+        stroke: var(--color-text-secondary);
+      }
+
+      .related-tags {
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .tags-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .tag-chip {
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border);
+        padding: 8px 16px;
+        border-radius: 20px;
+        text-decoration: none;
+        color: var(--color-text-primary);
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+
+      .tag-chip:hover {
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+      }
+
+      @media (max-width: 768px) {
+        .hashtag-header {
+          flex-direction: column;
+          text-align: center;
+          gap: 20px;
+        }
+
+        .hashtag-icon {
+          width: 100px;
+          height: 100px;
+          font-size: 48px;
+        }
+
+        .posts-grid {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 3px;
+        }
+      }
+    </style>
+</head>
+
+<body>
+  <%- include('partials/sidebar') %>
+    <%- include('partials/modal') %>
+      <%- include('partials/mobile-nav') %>
+
+        <div class="main-content">
+          <%- include('partials/top-nav') %>
+
+            <div class="hashtag-container">
+              <div class="hashtag-header">
+                <div class="hashtag-icon">#</div>
+                <div class="hashtag-info">
+                  <h1>#<%= hashtag %>
+                  </h1>
+                  <p class="hashtag-stats"><b>
+                      <%= posts.length %>
+                    </b> posts</p>
+                </div>
+              </div>
+
+              <% if (posts.length> 0) { %>
+                <h3 class="section-title">Top Posts</h3>
+                <div class="posts-grid">
+                  <% posts.forEach(post=> { %>
+                    <a href="/post/<%= post._id %>" class="grid-item">
+                      <% if (post.mediaType==='video' ) { %>
+                        <video src="<%= post.image %>" class="explore-img" loading="lazy" muted loop autoplay
+                          style="object-fit: cover; width: 100%; height: 100%;"></video>
+                        <% } else { %>
+                          <img src="<%= post.image %>" alt="Post">
+                          <% } %>
+                            <div class="grid-overlay">
+                              <span>❤️ <%= post.likes.length %></span>
+                              <span>💬 <%= post.comments.length %></span>
+                            </div>
+                    </a>
+                    <% }) %>
+                </div>
+                <% } else { %>
+                  <div class="no-posts">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                      <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <h3>No posts yet</h3>
+                    <p>Be the first to post with #<%= hashtag %>
+                    </p>
+                  </div>
+                  <% } %>
+
+                    <% if (relatedTags && relatedTags.length> 0) { %>
+                      <div class="related-tags">
+                        <h3 class="section-title">Related Hashtags</h3>
+                        <div class="tags-list">
+                          <% relatedTags.forEach(tag=> { %>
+                            <a href="/hashtag/<%= tag %>" class="tag-chip">#<%= tag %></a>
+                            <% }) %>
+                        </div>
+                      </div>
+                      <% } %>
+            </div>
+        </div>
+
+        <%- include('partials/scripts') %>
+</body>
+
+</html>

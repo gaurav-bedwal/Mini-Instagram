@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reports - Admin - Blogs</title>
+  <%- include('../partials/common-styles') %>
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .admin-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .admin-nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .admin-nav a {
+      padding: 10px 20px;
+      background: var(--tab-bg, #efefef);
+      border: 1px solid var(--border-color, #dbdbdb);
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text-color, #262626);
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .admin-nav a:hover, .admin-nav a.active {
+      background: #0095f6;
+      color: white;
+      border-color: #0095f6;
+    }
+    .pending-badge {
+      background: #ed4956;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: var(--tab-bg, #efefef);
+      color: var(--text-color, #262626);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .filter-tab.active {
+      background: #0095f6;
+      color: white;
+    }
+    .reports-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .report-card {
+      background: var(--card-bg, white);
+      border: 1px solid var(--border-color, #dbdbdb);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .report-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .report-type {
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    .report-status {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-reviewing { background: #cce5ff; color: #004085; }
+    .status-resolved { background: #d4edda; color: #155724; }
+    .status-dismissed { background: #f8d7da; color: #721c24; }
+    .report-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .info-label {
+      font-size: 12px;
+      color: #8e8e8e;
+      text-transform: uppercase;
+    }
+    .info-value {
+      font-size: 14px;
+    }
+    .user-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .user-link img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .report-description {
+      background: var(--input-bg, #fafafa);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .report-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-primary { background: #0095f6; color: white; }
+    .btn-success { background: #44b700; color: white; }
+    .btn-danger { background: #ed4956; color: white; }
+    .btn-warning { background: #f39c12; color: white; }
+    .btn-secondary { background: #efefef; color: #262626; }
+    .review-form {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color, #dbdbdb);
+    }
+    .review-form.active {
+      display: block;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color, #dbdbdb);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #8e8e8e;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    .pagination a {
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: var(--tab-bg, #efefef);
+      color: var(--text-color, #262626);
+      text-decoration: none;
+    }
+    .pagination a.active {
+      background: #0095f6;
+      color: white;
+    }
+    .avatar-placeholder {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #efefef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #8e8e8e;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar') %>
+  <%- include('../partials/mobile-nav') %>
+
+  <div class="main-content">
+    <%- include('../partials/top-nav') %>
+    
+    <div class="admin-container">
+      <nav class="admin-nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/users">Users</a>
+        <a href="/admin/posts">Posts</a>
+        <a href="/admin/analytics">Analytics</a>
+        <a href="/reports/admin/all" class="active">Reports</a>
+        <a href="/admin/verifications">Verifications</a>
+        <a href="/" style="margin-left: auto;">Back to Site</a>
+        <a href="/logout" style="background: #ed4956; color: white; border-color: #ed4956;">Logout</a>
+      </nav>
+
+      <div class="admin-header">
+        <h2>Reports</h2>
+        <% if (pendingCount > 0) { %>
+          <span class="pending-badge"><%= pendingCount %> pending</span>
+        <% } %>
+      </div>
+
+      <div class="filter-tabs">
+        <a href="/reports/admin/all?status=pending" class="filter-tab <%= currentStatus === 'pending' ? 'active' : '' %>">Pending</a>
+        <a href="/reports/admin/all?status=reviewing" class="filter-tab <%= currentStatus === 'reviewing' ? 'active' : '' %>">Reviewing</a>
+        <a href="/reports/admin/all?status=resolved" class="filter-tab <%= currentStatus === 'resolved' ? 'active' : '' %>">Resolved</a>
+        <a href="/reports/admin/all?status=dismissed" class="filter-tab <%= currentStatus === 'dismissed' ? 'active' : '' %>">Dismissed</a>
+        <a href="/reports/admin/all?status=all" class="filter-tab <%= currentStatus === 'all' ? 'active' : '' %>">All</a>
+      </div>
+
+      <% if (reports.length === 0) { %>
+        <div class="empty-state">
+          <h3>No reports found</h3>
+          <p>No reports match the selected filter.</p>
+        </div>
+      <% } else { %>
+        <div class="reports-list">
+          <% reports.forEach((report, index) => { %>
+            <div class="report-card">
+              <div class="report-header">
+                <span class="report-type"><%= report.reportType %> Report</span>
+                <span class="report-status status-<%= report.status %>"><%= report.status %></span>
+              </div>
+
+              <div class="report-info">
+                <div class="info-item">
+                  <span class="info-label">Reporter</span>
+                  <span class="info-value">
+                    <% if (report.reporter) { %>
+                      <a href="/user/<%= report.reporter._id %>" class="user-link">
+                        <% if (report.reporter.avatar) { %>
+                          <img src="<%= report.reporter.avatar %>" alt="<%= report.reporter.username %>">
+                        <% } else { %>
+                          <div class="avatar-placeholder"><%= report.reporter.username.charAt(0).toUpperCase() %></div>
+                        <% } %>
+                        <%= report.reporter.username %>
+                      </a>
+                    <% } else { %>
+                      Unknown
+                    <% } %>
+                  </span>
+                </div>
+
+                <% if (report.reportedUser) { %>
+                  <div class="info-item">
+                    <span class="info-label">Reported User</span>
+                    <span class="info-value">
+                      <a href="/user/<%= report.reportedUser._id %>" class="user-link">
+                        <% if (report.reportedUser.avatar) { %>
+                          <img src="<%= report.reportedUser.avatar %>" alt="<%= report.reportedUser.username %>">
+                        <% } else { %>
+                          <div class="avatar-placeholder"><%= report.reportedUser.username.charAt(0).toUpperCase() %></div>
+                        <% } %>
+                        <%= report.reportedUser.username %>
+                      </a>
+                    </span>
+                  </div>
+                <% } %>
+
+                <div class="info-item">
+                  <span class="info-label">Reason</span>
+                  <span class="info-value" style="text-transform:capitalize;"><%= report.reason.replace(/_/g, ' ') %></span>
+                </div>
+
+                <div class="info-item">
+                  <span class="info-label">Date</span>
+                  <span class="info-value"><%= new Date(report.createdAt).toLocaleDateString() %></span>
+                </div>
+              </div>
+
+              <% if (report.description) { %>
+                <div class="report-description">
+                  <strong>Description:</strong> <%= report.description %>
+                </div>
+              <% } %>
+
+              <% if (report.status === 'pending' || report.status === 'reviewing') { %>
+                <div class="report-actions">
+                  <button class="action-btn btn-primary" onclick="toggleReviewForm('<%= report._id %>')">Review</button>
+                  <% if (report.reportedPost) { %>
+                    <a href="/post/<%= report.reportedPost._id || report.reportedPost %>" class="action-btn btn-secondary">View Post</a>
+                  <% } %>
+                  <% if (report.reportedUser) { %>
+                    <a href="/user/<%= report.reportedUser._id %>" class="action-btn btn-secondary">View User</a>
+                  <% } %>
+                </div>
+
+                <div class="review-form" id="review-<%= report._id %>">
+                  <form onsubmit="submitReview(event, '<%= report._id %>')">
+                    <div class="form-group">
+                      <label>Action</label>
+                      <select name="actionTaken" required>
+                        <option value="">Select action...</option>
+                        <option value="none">No action needed</option>
+                        <option value="warning">Send warning</option>
+                        <option value="content_removed">Remove content</option>
+                        <option value="user_suspended">Suspend user</option>
+                        <option value="user_banned">Ban user</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Resolution note</label>
+                      <textarea name="resolution" rows="3" placeholder="Add a note about this decision..."></textarea>
+                    </div>
+                    <div class="report-actions">
+                      <button type="submit" name="status" value="resolved" class="action-btn btn-success">Resolve</button>
+                      <button type="submit" name="status" value="dismissed" class="action-btn btn-secondary">Dismiss</button>
+                    </div>
+                  </form>
+                </div>
+              <% } else { %>
+                <% if (report.resolution) { %>
+                  <div class="report-description">
+                    <strong>Resolution:</strong> <%= report.resolution %>
+                  </div>
+                <% } %>
+                <% if (report.reviewedBy) { %>
+                  <div style="font-size:12px;color:#8e8e8e;">
+                    Reviewed by <%= report.reviewedBy.username %> on <%= new Date(report.reviewedAt).toLocaleDateString() %>
+                    <% if (report.actionTaken) { %>
+                      - Action: <%= report.actionTaken.replace(/_/g, ' ') %>
+                    <% } %>
+                  </div>
+                <% } %>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+
+        <% if (totalPages > 1) { %>
+          <div class="pagination">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <a href="/reports/admin/all?status=<%= currentStatus %>&page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('../partials/scripts') %>
+  <script>
+    function toggleReviewForm(reportId) {
+      const form = document.getElementById('review-' + reportId);
+      form.classList.toggle('active');
+    }
+
+    async function submitReview(event, reportId) {
+      event.preventDefault();
+      
+      const form = event.target;
+      const formData = new FormData(form);
+      const status = event.submitter.value;
+      
+      const data = {
+        status,
+        actionTaken: formData.get('actionTaken'),
+        resolution: formData.get('resolution')
+      };
+      
+      try {
+        const res = await fetch(`/reports/admin/${reportId}/review`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        if (res.ok) {
+          location.reload();
+        } else {
+          const error = await res.json();
+          alert(error.error || 'Failed to submit review');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Failed to submit review');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,376 @@
+<div id="toastContainer" class="toast-container"></div>
+
+<script>
+    // =============================================
+    // THEME TOGGLE
+    // =============================================
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+
+    // =============================================
+    // TOAST NOTIFICATIONS
+    // =============================================
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
+    // =============================================
+    // SIDEBAR
+    // =============================================
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('.main-content');
+        sidebar.classList.toggle('expanded');
+        mainContent.classList.toggle('sidebar-expanded', sidebar.classList.contains('expanded'));
+    }
+
+    // =============================================
+    // MODAL
+    // =============================================
+    function openModal() {
+        const modal = document.getElementById('createPostModal');
+        if (!modal) return;
+        modal.style.display = 'flex';
+        const firstInput = modal.querySelector('input, textarea, button');
+        if (firstInput) firstInput.focus();
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('createPostModal');
+        if (!modal) return;
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        const form = modal.querySelector('form');
+        if (form) form.reset();
+    }
+
+    function closeModalOnLayout(event) {
+        if (event.target.id === 'createPostModal') closeModal();
+    }
+
+    // =============================================
+    // DROPDOWN MENU
+    // =============================================
+    function toggleMenu(id) {
+        const menus = document.querySelectorAll('.dropdown-menu');
+        menus.forEach(m => {
+            if (m.id !== id) m.classList.remove('show');
+        });
+        const target = document.getElementById(id);
+        if (target) target.classList.toggle('show');
+    }
+
+    // =============================================
+    // DOUBLE-TAP TO LIKE
+    // =============================================
+    let lastTap = 0;
+    document.addEventListener('click', function(e) {
+        const postImage = e.target.closest('.post-image-container');
+        if (!postImage) return;
+
+        const now = Date.now();
+        if (now - lastTap < 300) {
+            // Double tap detected
+            const postCard = postImage.closest('.post-card');
+            if (!postCard) return;
+
+            const postId = postCard.dataset.postId;
+            if (postId) {
+                likePost(postId, postCard);
+                showHeartAnimation(postImage);
+            }
+        }
+        lastTap = now;
+    });
+
+    function showHeartAnimation(container) {
+        const existing = container.querySelector('.like-animation');
+        if (existing) existing.remove();
+
+        const heart = document.createElement('div');
+        heart.className = 'like-animation show';
+        heart.innerHTML = `
+            <svg viewBox="0 0 24 24">
+                <path d="M16.792 3.904A4.989 4.989 0 0121.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.077 2.5 12.194 2.5 9.122a4.989 4.989 0 014.708-5.218 4.21 4.21 0 013.675 1.941c.325.487.568 1.05.617 1.649.034.417.433.417.467 0a4.213 4.213 0 013.675-1.941 4.213 4.213 0 013.15 1.353z"/>
+            </svg>
+        `;
+        container.appendChild(heart);
+        
+        setTimeout(() => heart.remove(), 1000);
+    }
+
+    // =============================================
+    // AJAX LIKE
+    // =============================================
+    async function likePost(postId, postCard) {
+        try {
+            const response = await fetch(`/post/${postId}/like`, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                const likeBtn = postCard.querySelector('.like-btn');
+                const likesCount = postCard.querySelector('.likes-count');
+                
+                if (likeBtn) {
+                    const svg = likeBtn.querySelector('svg');
+                    if (data.liked) {
+                        svg.setAttribute('fill', '#ed4956');
+                        svg.setAttribute('stroke', '#ed4956');
+                    } else {
+                        svg.setAttribute('fill', 'none');
+                        svg.setAttribute('stroke', 'currentColor');
+                    }
+                }
+                
+                if (likesCount) {
+                    likesCount.textContent = `${data.likeCount} likes`;
+                }
+            }
+        } catch (err) {
+            console.error('Like error:', err);
+        }
+    }
+
+    // =============================================
+    // AJAX SAVE POST
+    // =============================================
+    async function savePost(postId, btn) {
+        try {
+            const response = await fetch(`/post/${postId}/save`, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                btn.classList.toggle('saved', data.saved);
+                showToast(data.saved ? 'Post saved' : 'Post unsaved', 'success');
+            }
+        } catch (err) {
+            console.error('Save error:', err);
+            showToast('Failed to save post', 'error');
+        }
+    }
+
+    // =============================================
+    // AJAX FOLLOW
+    // =============================================
+    async function toggleFollow(userId, btn) {
+        try {
+            const response = await fetch(`/user/${userId}/follow`, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                if (data.isFollowing) {
+                    btn.textContent = 'Following';
+                    btn.classList.remove('primary');
+                    btn.classList.add('secondary');
+                    showToast('Following', 'success');
+                } else {
+                    btn.textContent = 'Follow';
+                    btn.classList.remove('secondary');
+                    btn.classList.add('primary');
+                    showToast('Unfollowed', 'info');
+                }
+                
+                // Update follower count if visible
+                const followerCount = document.querySelector('.follower-count');
+                if (followerCount) {
+                    followerCount.textContent = data.followerCount;
+                }
+            }
+        } catch (err) {
+            console.error('Follow error:', err);
+            showToast('Failed to follow', 'error');
+        }
+    }
+
+    // =============================================
+    // INFINITE SCROLL
+    // =============================================
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMore = true;
+
+    function initInfiniteScroll() {
+        const postsContainer = document.querySelector('.posts-container');
+        if (!postsContainer) return;
+
+        const totalPages = parseInt(postsContainer.dataset.totalPages) || 1;
+        currentPage = parseInt(postsContainer.dataset.currentPage) || 1;
+        hasMore = currentPage < totalPages;
+
+        window.addEventListener('scroll', handleScroll);
+    }
+
+    function handleScroll() {
+        if (isLoading || !hasMore) return;
+
+        const scrollHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.scrollY;
+        const clientHeight = window.innerHeight;
+
+        if (scrollTop + clientHeight >= scrollHeight - 500) {
+            loadMorePosts();
+        }
+    }
+
+    async function loadMorePosts() {
+        if (isLoading || !hasMore) return;
+        isLoading = true;
+
+        const container = document.querySelector('.posts-container');
+        const spinner = document.createElement('div');
+        spinner.className = 'loading-spinner';
+        spinner.innerHTML = '<div class="spinner"></div>';
+        container.appendChild(spinner);
+
+        try {
+            const response = await fetch(`/api/posts?page=${currentPage + 1}`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await response.json();
+
+            spinner.remove();
+
+            if (data.posts && data.posts.length > 0) {
+                currentPage = data.currentPage;
+                hasMore = data.hasMore;
+
+                data.posts.forEach(post => {
+                    container.insertAdjacentHTML('beforeend', createPostHTML(post));
+                });
+
+                // Re-attach lazy loading
+                const newImages = container.querySelectorAll('img[loading="lazy"]:not(.loaded)');
+                newImages.forEach(img => {
+                    if (img.complete) {
+                        img.classList.add('loaded');
+                    } else {
+                        img.addEventListener('load', () => img.classList.add('loaded'));
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('Load more error:', err);
+            spinner.remove();
+        }
+
+        isLoading = false;
+    }
+
+    function createPostHTML(post) {
+        const userAvatar = post.user?.avatar 
+            ? `<img src="${post.user.avatar}">`
+            : `<div style="width:32px; height:32px; background:#efefef; border-radius:50%"></div>`;
+        
+        return `
+            <div class="post-card" data-post-id="${post._id}">
+                <div class="post-header">
+                    <div class="user-info">
+                        ${userAvatar}
+                        <strong>${post.user?.username || 'user'}</strong>
+                    </div>
+                </div>
+                <a href="/post/${post._id}" class="post-image-container">
+                    <img src="${post.image}" class="post-image" loading="lazy" alt="Post">
+                </a>
+                <div class="post-actions">
+                    <div class="action-icons">
+                        <button type="button" class="action-btn like-btn" onclick="likePost('${post._id}', this.closest('.post-card'))">
+                            <svg height="24" viewBox="0 0 24 24" width="24"
+                                fill="${post.isLiked ? '#ed4956' : 'none'}"
+                                stroke="${post.isLiked ? '#ed4956' : 'currentColor'}">
+                                <path d="M16.792 3.904A4.989 4.989 0 0121.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.077 2.5 12.194 2.5 9.122a4.989 4.989 0 014.708-5.218 4.21 4.21 0 013.675 1.941c.325.487.568 1.05.617 1.649.034.417.433.417.467 0a4.213 4.213 0 013.675-1.941 4.213 4.213 0 013.15 1.353z" stroke-width="2"></path>
+                            </svg>
+                        </button>
+                        <a href="/post/${post._id}" class="action-btn" style="color: inherit;">
+                            <svg height="24" viewBox="0 0 24 24" width="24">
+                                <path d="M20.656 17.008a9.993 9.993 0 10-3.59 3.615L22 22z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                        </a>
+                        <button type="button" class="action-btn save-btn ${post.isSaved ? 'saved' : ''}" onclick="savePost('${post._id}', this)">
+                            <svg height="24" viewBox="0 0 24 24" width="24" fill="${post.isSaved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="likes-count">${post.likeCount || 0} likes</div>
+                    <div class="post-caption">
+                        <b>${post.user?.username || 'user'}</b> ${post.caption || ''}
+                    </div>
+                    ${post.commentCount > 0 ? `
+                        <a href="/post/${post._id}" class="view-comments-btn">
+                            View all ${post.commentCount} comments
+                        </a>
+                    ` : ''}
+                </div>
+                <form method="POST" action="/post/${post._id}/comment" class="comment-form">
+                    <input type="text" name="comment" class="comment-input" placeholder="Add a comment..." required>
+                    <button type="submit" class="comment-submit">Post</button>
+                </form>
+            </div>
+        `;
+    }
+
+    // =============================================
+    // EVENT LISTENERS
+    // =============================================
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('createPostModal');
+            if (modal && modal.style.display === 'flex') {
+                closeModal();
+            }
+            const menus = document.querySelectorAll('.dropdown-menu.show');
+            menus.forEach(m => m.classList.remove('show'));
+        }
+    });
+
+    window.onclick = function(event) {
+        if (!event.target.closest('.menu-dot')) {
+            const menus = document.querySelectorAll('.dropdown-menu');
+            menus.forEach(m => m.classList.remove('show'));
+        }
+    };
+
+    // =============================================
+    // INIT
+    // =============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Lazy images
+        const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+        lazyImages.forEach(img => {
+            if (img.complete) {
+                img.classList.add('loaded');
+            } else {
+                img.addEventListener('load', () => img.classList.add('loaded'));
+            }
+        });
+
+        // Infinite scroll
+        initInfiniteScroll();
+    });
+</script>

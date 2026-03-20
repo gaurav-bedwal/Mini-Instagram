@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Requests - Admin</title>
+    <%- include('../partials/common-styles') %>
+    <style>
+        .admin-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--color-border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .admin-header h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+        
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .admin-nav a {
+            padding: 10px 20px;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--color-text-primary);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .admin-nav a:hover, .admin-nav a.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .status-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .status-tab {
+            padding: 8px 16px;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--color-text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-tab:hover, .status-tab.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .status-tab .count {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        
+        .requests-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .request-card {
+            background: var(--color-bg-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .request-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .request-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .avatar-placeholder {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--color-bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--color-text-secondary);
+        }
+        
+        .request-user-info {
+            flex: 1;
+        }
+        
+        .request-username {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .request-name {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+        
+        .request-meta {
+            display: flex;
+            gap: 16px;
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+        
+        .category-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            text-transform: capitalize;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-badge.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .request-body {
+            padding: 20px;
+        }
+        
+        .request-section {
+            margin-bottom: 16px;
+        }
+        
+        .request-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .request-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .request-reason {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--color-text-primary);
+        }
+        
+        .request-links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .request-links a {
+            color: var(--color-primary);
+            font-size: 13px;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .request-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .request-document {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--color-bg-secondary);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--color-text-primary);
+            font-size: 13px;
+        }
+        
+        .request-document:hover {
+            background: var(--color-border);
+        }
+        
+        .request-footer {
+            display: flex;
+            gap: 12px;
+            padding: 20px;
+            border-top: 1px solid var(--color-border);
+            background: var(--color-bg-secondary);
+        }
+        
+        .action-btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .action-btn.approve {
+            background: #28a745;
+            color: white;
+        }
+        
+        .action-btn.approve:hover {
+            background: #218838;
+        }
+        
+        .action-btn.reject {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .action-btn.reject:hover {
+            background: #c82333;
+        }
+        
+        .action-btn.secondary {
+            background: var(--color-bg-primary);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 30px;
+        }
+        
+        .pagination a {
+            padding: 8px 14px;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--color-text-primary);
+        }
+        
+        .pagination a:hover, .pagination a.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-secondary);
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+        }
+        
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--color-bg-primary);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            padding: 24px;
+        }
+        
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .modal-body textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-nav {
+                width: 100%;
+                overflow-x: auto;
+            }
+            
+            .request-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .request-footer {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/sidebar') %>
+    <%- include('../partials/mobile-nav') %>
+    
+    <div class="main-content">
+        <%- include('../partials/top-nav') %>
+        
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Verification Requests</h1>
+                <nav class="admin-nav">
+                    <a href="/admin">Dashboard</a>
+                    <a href="/admin/users">Users</a>
+                    <a href="/admin/posts">Posts</a>
+                    <a href="/admin/analytics">Analytics</a>
+                    <a href="/reports/admin/all">Reports</a>
+                    <a href="/admin/verifications" class="active">Verifications</a>
+                    <a href="/" style="margin-left: auto;">Back to Site</a>
+                    <a href="/logout" style="background: #ed4956; color: white; border-color: #ed4956;">Logout</a>
+                </nav>
+            </div>
+            
+            <div class="status-tabs">
+                <a href="/admin/verifications?status=pending" class="status-tab <%= currentStatus === 'pending' ? 'active' : '' %>">
+                    Pending <span class="count"><%= counts.pending %></span>
+                </a>
+                <a href="/admin/verifications?status=approved" class="status-tab <%= currentStatus === 'approved' ? 'active' : '' %>">
+                    Approved <span class="count"><%= counts.approved %></span>
+                </a>
+                <a href="/admin/verifications?status=rejected" class="status-tab <%= currentStatus === 'rejected' ? 'active' : '' %>">
+                    Rejected <span class="count"><%= counts.rejected %></span>
+                </a>
+                <a href="/admin/verifications?status=all" class="status-tab <%= currentStatus === 'all' ? 'active' : '' %>">
+                    All
+                </a>
+            </div>
+            
+            <% if (requests && requests.length > 0) { %>
+                <div class="requests-grid">
+                    <% requests.forEach(req => { %>
+                        <div class="request-card" data-id="<%= req._id %>">
+                            <div class="request-header">
+                                <% if (req.user && req.user.avatar) { %>
+                                    <img src="<%= req.user.avatar %>" alt="<%= req.user.username %>" class="request-avatar">
+                                <% } else { %>
+                                    <div class="avatar-placeholder"><%= req.user ? req.user.username.charAt(0).toUpperCase() : '?' %></div>
+                                <% } %>
+                                
+                                <div class="request-user-info">
+                                    <div class="request-username">
+                                        <a href="/user/<%= req.user ? req.user._id : '' %>" style="color:inherit;text-decoration:none;">
+                                            @<%= req.user ? req.user.username : 'Deleted User' %>
+                                        </a>
+                                        <span class="category-badge"><%= req.category %></span>
+                                        <span class="status-badge <%= req.status %>"><%= req.status %></span>
+                                    </div>
+                                    <div class="request-name"><%= req.fullName %></div>
+                                    <div class="request-meta">
+                                        <span><%= req.user ? (req.user.followers ? req.user.followers.length : 0) : 0 %> followers</span>
+                                        <span>Submitted <%= new Date(req.createdAt).toLocaleDateString() %></span>
+                                        <% if (req.reviewedBy) { %>
+                                            <span>Reviewed by @<%= req.reviewedBy.username %></span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="request-body">
+                                <div class="request-section">
+                                    <div class="request-section-title">Reason for Verification</div>
+                                    <div class="request-reason"><%= req.reason %></div>
+                                </div>
+                                
+                                <% if (req.links && req.links.length > 0 && req.links[0]) { %>
+                                    <div class="request-section">
+                                        <div class="request-section-title">Supporting Links</div>
+                                        <div class="request-links">
+                                            <% req.links.filter(l => l).forEach(link => { %>
+                                                <a href="<%= link %>" target="_blank" rel="noopener"><%= link %></a>
+                                            <% }) %>
+                                        </div>
+                                    </div>
+                                <% } %>
+                                
+                                <% if (req.idDocument) { %>
+                                    <div class="request-section">
+                                        <div class="request-section-title">Identity Document</div>
+                                        <a href="<%= req.idDocument %>" target="_blank" class="request-document">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+                                            </svg>
+                                            View Document
+                                        </a>
+                                    </div>
+                                <% } %>
+                                
+                                <% if (req.adminNotes) { %>
+                                    <div class="request-section">
+                                        <div class="request-section-title">Admin Notes</div>
+                                        <div class="request-reason"><%= req.adminNotes %></div>
+                                    </div>
+                                <% } %>
+                                
+                                <% if (req.rejectionReason) { %>
+                                    <div class="request-section">
+                                        <div class="request-section-title">Rejection Reason</div>
+                                        <div class="request-reason" style="color:#dc3545;"><%= req.rejectionReason %></div>
+                                    </div>
+                                <% } %>
+                            </div>
+                            
+                            <% if (req.status === 'pending') { %>
+                                <div class="request-footer">
+                                    <button class="action-btn approve" onclick="reviewRequest('<%= req._id %>', 'approve')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Approve
+                                    </button>
+                                    <button class="action-btn reject" onclick="openRejectModal('<%= req._id %>')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                        Reject
+                                    </button>
+                                </div>
+                            <% } %>
+                        </div>
+                    <% }) %>
+                </div>
+                
+                <% if (totalPages > 1) { %>
+                    <div class="pagination">
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <a href="/admin/verifications?status=<%= currentStatus %>&page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+                        <% } %>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="M9 12l2 2 4-4"></path>
+                    </svg>
+                    <h3>No <%= currentStatus === 'all' ? '' : currentStatus %> verification requests</h3>
+                    <p>Verification requests will appear here when users submit them.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    
+    <!-- Reject Modal -->
+    <div class="modal-overlay" id="rejectModal">
+        <div class="modal-content">
+            <div class="modal-header">Reject Verification Request</div>
+            <div class="modal-body">
+                <label style="display:block;font-size:14px;margin-bottom:8px;">Reason for rejection:</label>
+                <textarea id="rejectionReason" placeholder="Explain why this request is being rejected..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn secondary" onclick="closeRejectModal()">Cancel</button>
+                <button class="action-btn reject" onclick="confirmReject()">Reject Request</button>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/scripts') %>
+    <script>
+        let currentRejectId = null;
+        
+        function openRejectModal(id) {
+            currentRejectId = id;
+            document.getElementById('rejectModal').classList.add('show');
+            document.getElementById('rejectionReason').value = '';
+        }
+        
+        function closeRejectModal() {
+            currentRejectId = null;
+            document.getElementById('rejectModal').classList.remove('show');
+        }
+        
+        async function confirmReject() {
+            if (!currentRejectId) return;
+            
+            const reason = document.getElementById('rejectionReason').value.trim();
+            if (!reason) {
+                alert('Please provide a reason for rejection');
+                return;
+            }
+            
+            await reviewRequest(currentRejectId, 'reject', reason);
+            closeRejectModal();
+        }
+        
+        async function reviewRequest(id, action, rejectionReason = '') {
+            try {
+                const res = await fetch(`/admin/verification/${id}/review`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action, rejectionReason })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showToast(data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(data.error || 'Failed to process request');
+                }
+            } catch (err) {
+                showToast('Error processing request');
+            }
+        }
+        
+        // Close modal on outside click
+        document.getElementById('rejectModal').addEventListener('click', function(e) {
+            if (e.target === this) closeRejectModal();
+        });
+    </script>
+</body>
+</html>

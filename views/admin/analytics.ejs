@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Admin</title>
+    <%- include('../partials/common-styles') %>
+    <style>
+        .admin-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--color-border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .admin-header h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+        
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .admin-nav a {
+            padding: 10px 20px;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--color-text-primary);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .admin-nav a:hover, .admin-nav a.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .time-filter {
+            margin-bottom: 20px;
+        }
+        
+        .time-filter a {
+            padding: 8px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--color-text-primary);
+            margin-right: 10px;
+        }
+        
+        .time-filter a.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 900px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: var(--color-bg-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .panel.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--color-border);
+            font-weight: 600;
+        }
+        
+        .panel-body {
+            padding: 20px;
+        }
+        
+        .chart-container {
+            height: 250px;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            padding-top: 20px;
+        }
+        
+        .bar {
+            flex: 1;
+            background: var(--color-primary);
+            border-radius: 4px 4px 0 0;
+            min-height: 4px;
+            position: relative;
+            transition: opacity 0.2s ease;
+        }
+        
+        .bar:hover {
+            opacity: 0.8;
+        }
+        
+        .bar .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        
+        .bar:hover .tooltip {
+            opacity: 1;
+        }
+        
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color-border-light);
+            gap: 12px;
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .list-item .rank {
+            width: 24px;
+            height: 24px;
+            background: var(--color-bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+        
+        .list-item .rank.gold { background: #fff8e1; color: #f9a825; }
+        .list-item .rank.silver { background: #f5f5f5; color: #757575; }
+        .list-item .rank.bronze { background: #fff3e0; color: #ef6c00; }
+        
+        .list-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .list-item .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .list-item .info {
+            flex: 1;
+        }
+        
+        .list-item .info strong {
+            display: block;
+            font-size: 14px;
+        }
+        
+        .list-item .info small {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+        }
+        
+        .list-item .stat {
+            text-align: right;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+        
+        .list-item .stat strong {
+            display: block;
+            font-size: 16px;
+            color: var(--color-text-primary);
+        }
+        
+        .hashtag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .hashtag {
+            padding: 8px 16px;
+            background: var(--color-bg-secondary);
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--color-text-primary);
+            transition: all 0.2s ease;
+        }
+        
+        .hashtag:hover {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .hashtag span {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            margin-left: 4px;
+        }
+        
+        .post-thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        /* Dark mode */
+        body.dark-mode .panel {
+            background: #1a1a1a;
+            border-color: #333;
+        }
+        
+        body.dark-mode .bar .tooltip {
+            background: #fff;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/sidebar') %>
+    <%- include('../partials/mobile-nav') %>
+    
+    <div class="main-content">
+        <%- include('../partials/top-nav') %>
+        
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Analytics</h1>
+                <nav class="admin-nav">
+                    <a href="/admin">Dashboard</a>
+                    <a href="/admin/users">Users</a>
+                    <a href="/admin/posts">Posts</a>
+                    <a href="/admin/analytics" class="active">Analytics</a>
+                    <a href="/reports/admin/all">Reports</a>
+                    <a href="/admin/verifications">Verifications</a>
+                    <a href="/" style="margin-left: auto;">Back to Site</a>
+                    <a href="/logout" style="background: #ed4956; color: white; border-color: #ed4956;">Logout</a>
+                </nav>
+            </div>
+            
+            <div class="time-filter">
+                <a href="/admin/analytics?days=7" class="<%= days === 7 ? 'active' : '' %>">7 Days</a>
+                <a href="/admin/analytics?days=30" class="<%= days === 30 ? 'active' : '' %>">30 Days</a>
+                <a href="/admin/analytics?days=90" class="<%= days === 90 ? 'active' : '' %>">90 Days</a>
+            </div>
+            
+            <div class="analytics-grid">
+                <!-- User Growth Chart -->
+                <div class="panel">
+                    <div class="panel-header">User Registrations (Last <%= days %> Days)</div>
+                    <div class="panel-body">
+                        <div class="chart-container">
+                            <% const maxUsers = Math.max(...userGrowth.map(d => d.count), 1); %>
+                            <% userGrowth.forEach(day => { %>
+                                <div class="bar" style="height: <%= (day.count / maxUsers) * 100 %>%">
+                                    <div class="tooltip"><%= day._id %>: <%= day.count %> users</div>
+                                </div>
+                            <% }) %>
+                            <% if (userGrowth.length === 0) { %>
+                                <p style="color: var(--color-text-secondary); text-align: center; width: 100%;">No data available</p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Post Activity Chart -->
+                <div class="panel">
+                    <div class="panel-header">Post Activity (Last <%= days %> Days)</div>
+                    <div class="panel-body">
+                        <div class="chart-container">
+                            <% const maxPosts = Math.max(...postActivity.map(d => d.posts), 1); %>
+                            <% postActivity.forEach(day => { %>
+                                <div class="bar" style="height: <%= (day.posts / maxPosts) * 100 %>%">
+                                    <div class="tooltip"><%= day._id %>: <%= day.posts %> posts, <%= day.likes %> likes</div>
+                                </div>
+                            <% }) %>
+                            <% if (postActivity.length === 0) { %>
+                                <p style="color: var(--color-text-secondary); text-align: center; width: 100%;">No data available</p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top Hashtags -->
+                <div class="panel">
+                    <div class="panel-header">Trending Hashtags</div>
+                    <div class="panel-body">
+                        <div class="hashtag-cloud">
+                            <% topHashtags.forEach(tag => { %>
+                                <div class="hashtag">#<%= tag._id %> <span><%= tag.count %></span></div>
+                            <% }) %>
+                            <% if (topHashtags.length === 0) { %>
+                                <p style="color: var(--color-text-secondary);">No hashtags found</p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Most Active Users -->
+                <div class="panel">
+                    <div class="panel-header">Most Active Users</div>
+                    <div class="panel-body">
+                        <% mostActiveUsers.forEach((u, i) => { %>
+                        <div class="list-item">
+                            <div class="rank <%= i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '' %>"><%= i + 1 %></div>
+                            <% if (u.avatar) { %>
+                                <img src="<%= u.avatar %>" alt="<%= u.username %>">
+                            <% } else { %>
+                                <div class="avatar-placeholder"><%= u.username.charAt(0).toUpperCase() %></div>
+                            <% } %>
+                            <div class="info">
+                                <strong>@<%= u.username %></strong>
+                            </div>
+                            <div class="stat">
+                                <strong><%= u.postCount %></strong>
+                                posts
+                            </div>
+                        </div>
+                        <% }) %>
+                    </div>
+                </div>
+                
+                <!-- Top Posts -->
+                <div class="panel full-width">
+                    <div class="panel-header">Most Liked Posts</div>
+                    <div class="panel-body">
+                        <% topPosts.forEach((p, i) => { %>
+                        <div class="list-item">
+                            <div class="rank <%= i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '' %>"><%= i + 1 %></div>
+                            <img src="<%= p.image %>" alt="Post" class="post-thumb">
+                            <div class="info">
+                                <strong><%= p.title || 'Untitled Post' %></strong>
+                                <small>by @<%= p.user.username %></small>
+                            </div>
+                            <div class="stat">
+                                <strong><%= p.likeCount %></strong>
+                                likes
+                            </div>
+                            <div class="stat">
+                                <strong><%= p.commentCount %></strong>
+                                comments
+                            </div>
+                            <a href="/post/<%= p._id %>" style="color: var(--color-primary); text-decoration: none; font-size: 14px;">View</a>
+                        </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <%- include('../partials/scripts') %>
+</body>
+</html>
