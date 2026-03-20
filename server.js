@@ -37,7 +37,9 @@ const connectDB = async () => {
   
   const dbUri = process.env.MONGO_URI || 'mongodb://localhost:27017/mini-insta';
   try {
-    const db = await mongoose.connect(dbUri);
+    const db = await mongoose.connect(dbUri, {
+      serverSelectionTimeoutMS: 5000 // Fail fast if connection cannot be established
+    });
     isConnected = db.connections[0].readyState;
     console.log(`Connected to MongoDB`);
   } catch (err) {
