@@ -18,6 +18,7 @@ const storyRoutes = require("./router/storyRouter");
 const reportRoutes = require("./router/reportRouter");
 
 const app = express();
+app.set("trust proxy", 1); // Trust Vercel's proxy for secure cookies
 const PORT = process.env.PORT || 3000;
 
 // Override previous rate limiter if any
@@ -28,14 +29,24 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// database connection
-const dbUri = process.env.MONGO_URI || 'mongodb://localhost:27017/mini-insta';
-mongoose
-  .connect(dbUri)
-  .then(() => console.log(`Connected to MongoDB (${dbUri})`))
-  .catch((err) => {
+// Global cached database connection for serverless
+let isConnected;
+
+const connectDB = async () => {
+  if (isConnected) return;
+  
+  const dbUri = process.env.MONGO_URI || 'mongodb://localhost:27017/mini-insta';
+  try {
+    const db = await mongoose.connect(dbUri);
+    isConnected = db.connections[0].readyState;
+    console.log(`Connected to MongoDB`);
+  } catch (err) {
     console.error("MongoDB connection error:", err);
-  });
+  }
+};
+
+// Initiate connection immediately but don't block
+connectDB();
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
