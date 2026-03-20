@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Post = require('../models/Post');
@@ -30,7 +30,7 @@ router.post('/register', upload.single('avatar'), registerValidation, validate, 
       avatarUrl = result.secure_url;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12); // Increased rounds
+    const hashedPassword = await bcrypt.hash(password, 10); // Standard optimized rounds
     const user = new User({
       username: username.toLowerCase(),
       email,
@@ -187,7 +187,7 @@ router.post('/reset-password/:token', async (req, res) => {
     }
 
     // Update password
-    user.password = await bcrypt.hash(password, 12);
+    user.password = await bcrypt.hash(password, 10);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
@@ -343,7 +343,7 @@ router.post('/settings/password', auth, async (req, res) => {
       return res.redirect('/settings');
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     await User.findByIdAndUpdate(req.user._id, { password: hashedPassword });
 
     req.flash('success', 'Password changed successfully');
