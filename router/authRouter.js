@@ -63,7 +63,7 @@ router.post('/login', loginValidation, validate, async (req, res) => {
     if (user && await bcrypt.compare(password, user.password)) {
       const token = jwt.sign(
         { id: user._id, username: user.username },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || 'fallback_jwt_secret_key',
         { expiresIn: '7d' }
       );
       res.cookie('token', token, cookieOptions);
