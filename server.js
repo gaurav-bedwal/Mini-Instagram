@@ -44,11 +44,19 @@ const connectDB = async () => {
     console.log(`Connected to MongoDB`);
   } catch (err) {
     console.error("MongoDB connection error:", err);
+    throw err;
   }
 };
 
-// Initiate connection immediately but don't block
-connectDB();
+// Ensure database is connected before handling any requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).send("Database connection failed. If you are on Vercel, please ensure your MongoDB Atlas Network Access is set to allow all IPs (0.0.0.0/0).");
+  }
+});
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
