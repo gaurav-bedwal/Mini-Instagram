@@ -35,7 +35,6 @@ mongoose
   .then(() => console.log(`Connected to MongoDB (${dbUri})`))
   .catch((err) => {
     console.error("MongoDB connection error:", err);
-    process.exit(1);
   });
 
 app.set("view engine", "ejs");
